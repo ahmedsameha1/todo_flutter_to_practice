@@ -101,6 +101,12 @@ class ApplicationState extends ChangeNotifier {
     }
   }
 
+  Future<void> unlockAndSignIn(String code) async {
+    await firebaseAuth.applyActionCode(code);
+    _loginState = ApplicationLoginState.loggedIn;
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw StateError("To sign out you need to sign in first!");

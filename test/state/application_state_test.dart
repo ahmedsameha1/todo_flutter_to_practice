@@ -250,21 +250,17 @@ main() {
           $and Calling loginState should return ApplicationLoginState.locked
 """, () async {
     await fromLoggedOutToEmailAddressToRegister();
-    when(notNullUser.updateDisplayName(displayName))
-        .thenAnswer((realInvocation) => Completer<void>().future);
-    when(userCredential.user).thenReturn(notNullUser);
-    when(firebaseAuth.createUserWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenAnswer((realInvocation) => Future.value(userCredential));
-    await sut.registerAccount(
-        validEmail, password, displayName, firebaseAuthExceptionCallback);
-    verify(firebaseAuth.createUserWithEmailAndPassword(
-            email: validEmail, password: password))
-        .called(1);
-    verify(notNullUser.updateDisplayName(displayName)).called(1);
-    verify(firebaseAuth.signOut()).called(1);
-    verify(notNullUser.sendEmailVerification()).called(1);
-    expect(sut.loginState, ApplicationLoginState.locked);
+    await fromRegisterToLocked();
+  });
+  test("""
+        $given $workingWithApplicationState
+        $wheN Calling unlockAndSignIn()
+          $whilE Calling loginState returns ApplicationLoginState.locked
+        $then Calling loginState should return ApplicationLoginState.loggedIn
+""", () async {
+    await fromLoggedOutToEmailAddressToRegister();
+    await fromRegisterToLocked();
+    await fromLockedToLoggedIn();
   });
   test("""
         $given $workingWithApplicationState
@@ -419,6 +415,31 @@ Future<void> fromLoggedOutToEmailAddressToRegister() async {
   expect(sut.email, validEmail);
   verify(notifyListenerCall()).called(1);
   reset(notifyListenerCall);
+}
+
+Future<void> fromRegisterToLocked() async {
+  when(notNullUser.updateDisplayName(displayName))
+      .thenAnswer((realInvocation) => Completer<void>().future);
+  when(userCredential.user).thenReturn(notNullUser);
+  when(firebaseAuth.createUserWithEmailAndPassword(
+          email: validEmail, password: password))
+      .thenAnswer((realInvocation) => Future.value(userCredential));
+  await sut.registerAccount(
+      validEmail, password, displayName, firebaseAuthExceptionCallback);
+  verify(firebaseAuth.createUserWithEmailAndPassword(
+          email: validEmail, password: password))
+      .called(1);
+  verify(notNullUser.updateDisplayName(displayName)).called(1);
+  verify(firebaseAuth.signOut()).called(1);
+  verify(notNullUser.sendEmailVerification()).called(1);
+  expect(sut.loginState, ApplicationLoginState.locked);
+}
+
+Future<void> fromLockedToLoggedIn() async {
+  const code = "code";
+  await sut.unlockAndSignIn(code);
+  expect(sut.loginState, ApplicationLoginState.loggedIn);
+  verify(notifyListenerCall()).called(1);
 }
 
 void fromLoggedOutToEmailAddress() {
