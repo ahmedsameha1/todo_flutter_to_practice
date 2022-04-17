@@ -102,6 +102,9 @@ class ApplicationState extends ChangeNotifier {
   }
 
   Future<void> unlockAndSignIn(String code) async {
+    if (_loginState != ApplicationLoginState.locked) {
+      throw StateError("To unlock and sign in you need to be at locked staged!");
+    }
     await firebaseAuth.applyActionCode(code);
     _loginState = ApplicationLoginState.loggedIn;
     notifyListeners();

@@ -35,6 +35,7 @@ const workingWithApplicationState = "Working with ApplicationState class";
 const notifyListenersCalled =
     "ChangeNotifier.notifyListeners() has been called";
 const callingStartLoginFlow = "Calling startLoginFlow()";
+const code = "code";
 late ApplicationState sut;
 final firebaseAuthExceptionCallback =
     MockFirebaseAuthExceptionErrorCallbackFunction();
@@ -379,6 +380,23 @@ main() {
     await fromPasswordToLoggedInIfUserHasBeenVerifiedHisEmail();
     expectExceptionFromVerifyEmail(sut.verifyEmail, message);
   });
+  test("""
+        $given $workingWithApplicationState
+        $wheN Calling loginState returns anything other than ApplicationLoginState.locked
+        $then Calling unlockAndSignIn() should throw StateError
+""", () async {
+    const message = "To unlock and sign in you need to be at locked staged!";
+    expect(sut.loginState, ApplicationLoginState.loggedOut);
+    expectExceptionFromUnlockAndSignIn(sut.unlockAndSignIn, message);
+    fromLoggedOutToEmailAddress();
+    expectExceptionFromUnlockAndSignIn(sut.unlockAndSignIn, message);
+    await fromLoggedOutToEmailAddressToRegister();
+    expectExceptionFromUnlockAndSignIn(sut.unlockAndSignIn, message);
+    await fromLoggedOutToEmailAddressToPassword();
+    expectExceptionFromUnlockAndSignIn(sut.unlockAndSignIn, message);
+    await fromPasswordToLoggedInIfUserHasBeenVerifiedHisEmail();
+    expectExceptionFromUnlockAndSignIn(sut.unlockAndSignIn, message);
+  });
 }
 
 void
@@ -436,7 +454,6 @@ Future<void> fromRegisterToLocked() async {
 }
 
 Future<void> fromLockedToLoggedIn() async {
-  const code = "code";
   await sut.unlockAndSignIn(code);
   expect(sut.loginState, ApplicationLoginState.loggedIn);
   verify(notifyListenerCall()).called(1);
@@ -511,5 +528,11 @@ void expectExceptionFromVerifyEmail(
     Function(String email, Function(FirebaseAuthException) func) function,
     String message) {
   expect(() => function(validEmail, firebaseAuthExceptionCallback),
+      throwsA(predicate((e) => e is StateError && e.message == message)));
+}
+
+void expectExceptionFromUnlockAndSignIn(
+    Function(String code) function, String message) {
+  expect(() => function(code),
       throwsA(predicate((e) => e is StateError && e.message == message)));
 }
