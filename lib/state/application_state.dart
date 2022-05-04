@@ -27,6 +27,14 @@ class ApplicationState extends ChangeNotifier {
       Future<FirebaseApp>? Function({String? name, FirebaseOptions? options})
           firebaseInitializeAppFunction) async {
     await firebaseInitializeAppFunction();
+    firebaseAuth.userChanges().listen((user) {
+      if (user != null) {
+        _loginState = ApplicationLoginState.loggedIn;
+      } else {
+        _loginState = ApplicationLoginState.loggedOut;
+      }
+      notifyListeners();
+    });
   }
 
   void startLoginFlow() {
