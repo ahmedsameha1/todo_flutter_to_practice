@@ -72,63 +72,9 @@ main() {
     reset(notifyListenerCall);
   });
 
-  test("""
-        $given $workingWithApplicationState
-        $wheN Creating a new ApplicationState instance
-        $then Firbase.initializeApp() should be called
-          $and loginState should return ApplicationLoginState.loggedOut
-      """, () {
-    verify(initializeCall()).called(1);
-    expect(sut.loginState, ApplicationLoginState.loggedOut);
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN $callingStartLoginFlow
-        $then That loginState returns ApplicationLoginState.emailAddress
-          $and $notifyListenersCalled
-      """, fromLoggedOutToEmailAddress);
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling verifyEmail() with an invalid email address
-        $then the errorCallback() has been called, which imply that a
-          FirebaseAuthException has been thrown
-""", () {
-    when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
-        .thenThrow(invalidEmailException);
-    fromLoggedOutToEmailAddress();
-    sut.verifyEmail(invalidEmail, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(invalidEmailException)).called(1);
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling verifyEmail() with a valid email address
-        $then the errorCallback() has NOT been called, which imply that a
-          FirebaseAuthException has NOT been thrown
-""", () {
-    fromLoggedOutToEmailAddress();
-    prepareFetchSignInMethodsForEmailWithValidEmailAndReturnAFutureOfListThatContainsPasswordMethod();
-    sut.verifyEmail(validEmail, firebaseAuthExceptionCallback);
-    verifyNever(firebaseAuthExceptionCallback(invalidEmailException));
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling verifyEmail with a valid email address
-          $and verifyEmail returns a Future of List that contains "password"
-        $then loginState should return ApplicationLoginState.password
-          $and the email returns the same passed argument email
-          $and $notifyListenersCalled
-""", () async {
-    await fromLoggedOutToEmailAddressToPassword();
-    expect(sut.email, validEmail);
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling verifyEmail with a valid email address
-          $and verifyEmail returns a Future of List that doesn't contain "password"
-        $then loginState should return ApplicationLoginState.register
-          $and the email returns the same passed argument email
-          $and $notifyListenersCalled
-""", fromLoggedOutToEmailAddressToRegister);
+
+
+  
   test("""
         $given $workingWithApplicationState
         $wheN Calling signInWithEmailAndPassword() with invalid email
@@ -390,7 +336,6 @@ void
   when(firebaseAuth.fetchSignInMethodsForEmail(validEmail))
       .thenAnswer((realInvocation) => Future.value(<String>["password"]));
 }
-
 void
     prepareFetchSignInMethodsForEmailWithValidEmailAndReturnAFutureOfListThatDoesntContainPasswordMethod() {
   when(firebaseAuth.fetchSignInMethodsForEmail(validEmail))
