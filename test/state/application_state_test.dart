@@ -75,65 +75,9 @@ main() {
 
 
   
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling signInWithEmailAndPassword() with invalid email
-          $or Calling signInWithEmailAndPassword() with an email that belongs to
-                a disabled user
-          $or Calling signInWithEmailAndPassword() with an email that belogns to 
-                no user
-          $or Calling signInWithEmailAndPassword() with an invalid password for 
-                the given email or the account of the email doesn't have a 
-                password set
-        $then errorCallback() should be called, and this imply tha an exception 
-                has been thrown
-""", () async {
-    await fromLoggedOutToEmailAddressToPassword();
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: invalidEmail, password: password))
-        .thenThrow(invalidEmailException);
-    sut.signInWithEmailAndPassword(
-        invalidEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(invalidEmailException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(userDisabledException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(userDisabledException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(userNotFoundException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(userNotFoundException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(wrongPasswordException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(wrongPasswordException)).called(1);
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling signInWithEmailAndPassword() with a valid email and
-                password
-          $and User.emailVerified returns false
-        $then EmailHasNotBeenVerifiedException has been thrown
-""", () async {
-    await fromLoggedOutToEmailAddressToPassword();
-    await fromPasswordToLoggedInButEmailHasNotBeenVerifiedExceptionThrown();
-  });
-  test("""
-        $given $workingWithApplicationState
-        $wheN Calling signInWithEmailAndPassword() with a valid email and
-                password
-          $and User.emailVerified returns true
-        $then Calling loginState returns ApplicationLoginState.loggedIn
-""", () async {
-    await fromLoggedOutToEmailAddressToPassword();
-    await fromPasswordToLoggedInIfUserHasBeenVerifiedHisEmail();
-  });
+  
+
+
   test("""
         $given $workingWithApplicationState
         $wheN Calling cancelRegistration()

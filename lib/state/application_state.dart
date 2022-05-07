@@ -29,7 +29,12 @@ class ApplicationState extends ChangeNotifier {
     await firebaseInitializeAppFunction();
     firebaseAuth.userChanges().listen((user) {
       if (user != null) {
-        _loginState = ApplicationLoginState.loggedIn;
+        if (!user.emailVerified) {
+          //firebaseAuth.signOut();
+          _loginState = ApplicationLoginState.locked;
+        } else {
+          _loginState = ApplicationLoginState.loggedIn;
+        }
       } else {
         _loginState = ApplicationLoginState.loggedOut;
       }
@@ -67,14 +72,10 @@ class ApplicationState extends ChangeNotifier {
     if (_loginState != ApplicationLoginState.password) {
       throw StateError("To sign in you need to be at password stage!");
     }
-    firebaseAuth.userChanges().listen(_whenNotNullUser);
+    //firebaseAuth.userChanges().listen(_whenNotNullUser);
     try {
-      final userCredential = await firebaseAuth.signInWithEmailAndPassword(
+      await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      if (!userCredential.user!.emailVerified) {
-        firebaseAuth.signOut();
-        throw EmailHasNotBeenVerifiedException();
-      }
     } on FirebaseAuthException catch (exception) {
       errorCallback(exception);
     }
@@ -117,6 +118,10 @@ class ApplicationState extends ChangeNotifier {
     await firebaseAuth.signOut();
   }
 
+  void sendEmailToVerifyEmailAddress() {
+    firebaseAuth.currentUser!.sendEmailVerification();
+  }
+
   void _whenNullUser(User? user) {
     if (user == null) {
       _loginState = ApplicationLoginState.loggedOut;
@@ -124,12 +129,14 @@ class ApplicationState extends ChangeNotifier {
     }
   }
 
+/*
   void _whenNotNullUser(User? user) {
     if (user != null) {
       _loginState = ApplicationLoginState.loggedIn;
       notifyListeners();
     }
   }
+  */
 }
 
 enum ApplicationLoginState {
