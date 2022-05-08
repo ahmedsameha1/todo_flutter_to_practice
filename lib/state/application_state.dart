@@ -101,20 +101,19 @@ class ApplicationState extends ChangeNotifier {
     try {
       final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      firebaseAuth.signOut();
       userCredential.user!.updateDisplayName(displayName);
       userCredential.user!.sendEmailVerification();
-      _loginState = ApplicationLoginState.locked;
     } on FirebaseAuthException catch (exception) {
       errorCallback(exception);
     }
   }
 
   Future<void> signOut() async {
-    if (_loginState != ApplicationLoginState.loggedIn) {
+    if (!(_loginState == ApplicationLoginState.loggedIn ||
+        _loginState == ApplicationLoginState.locked)) {
       throw StateError("To sign out you need to sign in first!");
     }
-    firebaseAuth.userChanges().listen(_whenNullUser);
+    //firebaseAuth.userChanges().listen(_whenNullUser);
     await firebaseAuth.signOut();
   }
 
@@ -122,13 +121,22 @@ class ApplicationState extends ChangeNotifier {
     firebaseAuth.currentUser!.sendEmailVerification();
   }
 
+  void toLoggedOut() {
+    _loginState = ApplicationLoginState.loggedOut;
+  }
+
+  /*
   void _whenNullUser(User? user) {
     if (user == null) {
       _loginState = ApplicationLoginState.loggedOut;
       notifyListeners();
     }
   }
+  */
 
+  void updateUser() {
+    firebaseAuth.currentUser!.reload();
+  }
 /*
   void _whenNotNullUser(User? user) {
     if (user != null) {
