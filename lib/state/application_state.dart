@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
-//const String toFakeEmailDomain = "@d013d88ad-f72e-45d1-bb30-86aaa2d43b94.com";
-
 class ApplicationState extends ChangeNotifier {
   ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
   ApplicationLoginState get loginState => _loginState;
@@ -30,7 +28,6 @@ class ApplicationState extends ChangeNotifier {
     firebaseAuth.userChanges().listen((user) {
       if (user != null) {
         if (!user.emailVerified) {
-          //firebaseAuth.signOut();
           _loginState = ApplicationLoginState.locked;
         } else {
           _loginState = ApplicationLoginState.loggedIn;
@@ -72,7 +69,6 @@ class ApplicationState extends ChangeNotifier {
     if (_loginState != ApplicationLoginState.password) {
       throw StateError("To sign in you need to be at password stage!");
     }
-    //firebaseAuth.userChanges().listen(_whenNotNullUser);
     try {
       await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -113,7 +109,6 @@ class ApplicationState extends ChangeNotifier {
         _loginState == ApplicationLoginState.locked)) {
       throw StateError("To sign out you need to sign in first!");
     }
-    //firebaseAuth.userChanges().listen(_whenNullUser);
     await firebaseAuth.signOut();
   }
 
@@ -123,28 +118,12 @@ class ApplicationState extends ChangeNotifier {
 
   void toLoggedOut() {
     _loginState = ApplicationLoginState.loggedOut;
+    notifyListeners();
   }
-
-  /*
-  void _whenNullUser(User? user) {
-    if (user == null) {
-      _loginState = ApplicationLoginState.loggedOut;
-      notifyListeners();
-    }
-  }
-  */
 
   void updateUser() {
     firebaseAuth.currentUser!.reload();
   }
-/*
-  void _whenNotNullUser(User? user) {
-    if (user != null) {
-      _loginState = ApplicationLoginState.loggedIn;
-      notifyListeners();
-    }
-  }
-  */
 }
 
 enum ApplicationLoginState {
@@ -155,5 +134,3 @@ enum ApplicationLoginState {
   register,
   locked,
 }
-
-class EmailHasNotBeenVerifiedException implements Exception {}

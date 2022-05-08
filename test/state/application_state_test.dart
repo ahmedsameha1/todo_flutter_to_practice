@@ -24,7 +24,6 @@ abstract class FirebaseAuthExceptionErrorCallbackFunction {
 
 late FirebaseAuth firebaseAuth;
 late User? firebaseUser;
-//late Stream<User?> streamOfFirebaseUsers;
 late UserCredential userCredential;
 const validEmail = "email@email.com";
 const invalidEmail = "invalid_email";
@@ -38,7 +37,7 @@ const callingStartLoginFlow = "Calling startLoginFlow()";
 late ApplicationState sut;
 final firebaseAuthExceptionCallback =
     MockFirebaseAuthExceptionErrorCallbackFunction();
-final notifyListenerCall = MockProviderNotifiyListenerFunction();
+final notifyListenersCall = MockProviderNotifiyListenerFunction();
 const User? nullUser = null;
 final User notNullUser = MockUser();
 late StreamController<User?> streamController;
@@ -67,13 +66,12 @@ main() {
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
     sut = ApplicationState(firebaseAuth, initializeCall)
-      ..addListener(notifyListenerCall);
+      ..addListener(notifyListenersCall);
     userCredential = MockUserCredential();
     streamController = StreamController();
     when(firebaseAuth.userChanges())
         .thenAnswer((ri) => streamController.stream);
-    //prepareUserChangesForTest(notNullUser);
-    reset(notifyListenerCall);
+    reset(notifyListenersCall);
   });
   test("""
         $given $workingWithApplicationState
@@ -84,11 +82,10 @@ main() {
           $and $notifyListenersCalled
       """, () async {
     verify(initializeCall()).called(1);
-    //streamController.sink.add(nullUser);
     pushPreparedUserToUserChangesStream(nullUser);
     await expectLater(1, 1);
     expect(sut.loginState, ApplicationLoginState.loggedOut);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
   test("""
         $given $workingWithApplicationState
@@ -100,11 +97,10 @@ main() {
           $and $notifyListenersCalled
       """, () async {
     verify(initializeCall()).called(1);
-    //streamController.sink.add(notNullUser);
     pushPreparedUserToUserChangesStream(notNullUser, true);
     await expectLater(1, 1);
     expect(sut.loginState, ApplicationLoginState.loggedIn);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
@@ -117,11 +113,10 @@ main() {
           $and $notifyListenersCalled
       """, () async {
     verify(initializeCall()).called(1);
-    //streamController.sink.add(notNullUser);
     pushPreparedUserToUserChangesStream(notNullUser, false);
     await expectLater(1, 1);
     expect(sut.loginState, ApplicationLoginState.locked);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
@@ -279,7 +274,7 @@ main() {
     await fromLoggedOutToEmailAddressToRegister();
     sut.cancelRegistration();
     expect(sut.loginState, ApplicationLoginState.emailAddress);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
@@ -363,7 +358,7 @@ main() {
     await sut.signOut();
     verify(firebaseAuth.signOut()).called(1);
     expect(sut.loginState, ApplicationLoginState.loggedOut);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
@@ -379,34 +374,41 @@ main() {
     await sut.signOut();
     verify(firebaseAuth.signOut()).called(1);
     expect(sut.loginState, ApplicationLoginState.loggedOut);
-    verify(notifyListenerCall()).called(1);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
         $given $workingWithApplicationState
         $wheN Calling toLoggedOut()
         $then Calling loginState should return ApplicationLoginState.loggedOut
+          $and $notifyListenersCalled
         """, () async {
     expect(sut.loginState, ApplicationLoginState.loggedOut);
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
     fromLoggedOutToEmailAddress();
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
     await fromLoggedOutToEmailAddressToRegister();
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
     await fromLoggedOutToEmailAddressToPassword();
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
     await fromLoggedOutToEmailAddressToPassword();
     await fromPasswordToLoggedIn();
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
     await fromLoggedOutToEmailAddressToPassword();
     await fromPasswordToLocked();
     sut.toLoggedOut();
     expect(sut.loginState, ApplicationLoginState.loggedOut);
+    verify(notifyListenersCall()).called(1);
   });
 
   test("""
@@ -522,8 +524,7 @@ main() {
 void fromLoggedOutToEmailAddress() {
   sut.startLoginFlow();
   expect(sut.loginState, ApplicationLoginState.emailAddress);
-  verify(notifyListenerCall()).called(1);
-  //reset(notifyListenerCall);
+  verify(notifyListenersCall()).called(1);
 }
 
 void
@@ -551,8 +552,7 @@ Future<void> fromLoggedOutToEmailAddressToPassword() async {
   prepareFetchSignInMethodsForEmailWithValidEmailAndReturnAFutureOfListThatContainsPasswordMethod();
   await sut.verifyEmail(validEmail, firebaseAuthExceptionCallback);
   expect(sut.loginState, ApplicationLoginState.password);
-  verify(notifyListenerCall()).called(1);
-  //reset(notifyListenerCall);
+  verify(notifyListenersCall()).called(1);
 }
 
 Future<void> fromLoggedOutToEmailAddressToRegister() async {
@@ -561,37 +561,30 @@ Future<void> fromLoggedOutToEmailAddressToRegister() async {
   await sut.verifyEmail(validEmail, firebaseAuthExceptionCallback);
   expect(sut.loginState, ApplicationLoginState.register);
   expect(sut.email, validEmail);
-  verify(notifyListenerCall()).called(1);
-  //reset(notifyListenerCall);
+  verify(notifyListenersCall()).called(1);
 }
 
 Future<void> fromPasswordToLoggedIn() async {
   when(firebaseAuth.signInWithEmailAndPassword(
           email: validEmail, password: password))
       .thenAnswer((realInvocation) => Future.value(userCredential));
-  //when(userCredential.user).thenReturn(notNullUser);
-  //when(notNullUser.emailVerified).thenReturn(true);
-  //streamController.sink.add(notNullUser);
   pushPreparedUserToUserChangesStream(notNullUser, true);
   await sut.signInWithEmailAndPassword(
       validEmail, password, firebaseAuthExceptionCallback);
   //expectLater(1, 1);
   expect(sut.loginState, ApplicationLoginState.loggedIn);
-  verify(notifyListenerCall()).called(1);
-  //reset(notifyListenerCall);
+  verify(notifyListenersCall()).called(1);
 }
 
 Future<void> fromPasswordToLocked() async {
   when(firebaseAuth.signInWithEmailAndPassword(
           email: validEmail, password: password))
       .thenAnswer((realInvocation) => Future.value(userCredential));
-  // when(userCredential.user).thenReturn(notNullUser);
-  //when(notNullUser.emailVerified).thenReturn(false);
   pushPreparedUserToUserChangesStream(notNullUser, false);
   await sut.signInWithEmailAndPassword(
       validEmail, password, firebaseAuthExceptionCallback);
   expect(sut.loginState, ApplicationLoginState.locked);
-  verify(notifyListenerCall()).called(1);
+  verify(notifyListenersCall()).called(1);
 }
 
 void expectExceptionFromSignOut(Function() function, String message) {
