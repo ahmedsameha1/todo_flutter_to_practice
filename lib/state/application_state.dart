@@ -124,6 +124,15 @@ class ApplicationState extends ChangeNotifier {
   void updateUser() {
     firebaseAuth.currentUser!.reload();
   }
+
+  void resetPassword(String email,
+      void Function(FirebaseAuthException exception) errorCallback) async {
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (exception) {
+      errorCallback(exception);
+    }
+  }
 }
 
 enum ApplicationLoginState {

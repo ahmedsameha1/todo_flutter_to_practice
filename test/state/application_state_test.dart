@@ -53,15 +53,7 @@ late StreamController<User?> streamController;
 ])
 main() {
   final initializeCall = MockFirebaseInitializeAppFunction();
-  final invalidEmailException = FirebaseAuthException(code: "invalid-email");
-  final userDisabledException = FirebaseAuthException(code: "user-disabled");
-  final userNotFoundException = FirebaseAuthException(code: "user-not-found");
-  final wrongPasswordException = FirebaseAuthException(code: "wrong-password");
-  final operationNotAllowedException =
-      FirebaseAuthException(code: "operation-not-allowed");
-  final weakPasswordException = FirebaseAuthException(code: "weak-password");
-  final emailAlreadyInUseException =
-      FirebaseAuthException(code: "email-already-in-use");
+  final firebaseAuthException = FirebaseAuthException(code: "code");
 
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
@@ -130,15 +122,15 @@ main() {
   test("""
         $given $workingWithApplicationState
           $and there is no signed in user
-        $wheN Calling verifyEmail() with an invalid email address
-        $then the errorCallback() has been called, which imply that a
-          FirebaseAuthException has been thrown
+        $wheN Calling verifyEmail()
+          $and FirebaseAuthException has been thrown
+        $then the errorCallback() should be called
 """, () {
     when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
-        .thenThrow(invalidEmailException);
+        .thenThrow(firebaseAuthException);
     fromLoggedOutToEmailAddress();
     sut.verifyEmail(invalidEmail, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(invalidEmailException)).called(1);
+    verify(firebaseAuthExceptionCallback(firebaseAuthException)).called(1);
   });
 
   test("""
@@ -151,7 +143,7 @@ main() {
     prepareFetchSignInMethodsForEmailWithValidEmailAndReturnAFutureOfListThatContainsPasswordMethod();
     fromLoggedOutToEmailAddress();
     sut.verifyEmail(validEmail, firebaseAuthExceptionCallback);
-    verifyNever(firebaseAuthExceptionCallback(invalidEmailException));
+    verifyNever(firebaseAuthExceptionCallback(firebaseAuthException));
   });
 
   test("""
@@ -180,42 +172,17 @@ main() {
   test("""
         $given $workingWithApplicationState
           $and there is no signed in user
-        $wheN Calling signInWithEmailAndPassword() with invalid email
-          $or Calling signInWithEmailAndPassword() with an email that belongs to
-                a disabled user
-          $or Calling signInWithEmailAndPassword() with an email that belogns to 
-                no user
-          $or Calling signInWithEmailAndPassword() with an invalid password for 
-                the given email or the account of the email doesn't have a 
-                password set
-        $then errorCallback() should be called, and this imply tha an exception 
-                has been thrown
+        $wheN Calling signInWithEmailAndPassword()
+          $and FirebaseAuthException has been thrown
+        $then the errorCallback() should be called
 """, () async {
     await fromLoggedOutToEmailAddressToPassword();
     when(firebaseAuth.signInWithEmailAndPassword(
             email: invalidEmail, password: password))
-        .thenThrow(invalidEmailException);
+        .thenThrow(firebaseAuthException);
     sut.signInWithEmailAndPassword(
         invalidEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(invalidEmailException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(userDisabledException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(userDisabledException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(userNotFoundException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(userNotFoundException)).called(1);
-    when(firebaseAuth.signInWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(wrongPasswordException);
-    sut.signInWithEmailAndPassword(
-        validEmail, password, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(wrongPasswordException)).called(1);
+    verify(firebaseAuthExceptionCallback(firebaseAuthException)).called(1);
   });
 
   test("""
@@ -267,6 +234,7 @@ main() {
 
   test("""
         $given $workingWithApplicationState
+          $and there is no signed in user
         $wheN Calling cancelRegistration()
         $then Calling logginState should return ApplicationLogginState.emailAddress
           $and $notifyListenersCalled
@@ -279,47 +247,23 @@ main() {
 
   test("""
         $given $workingWithApplicationState
-        $wheN Calling registerAccount() with an email that already used in an 
-                account
-          $or Calling registerAccount() with an invalid email
-          $or Calling registerAccount() while email/password accounts are not enabled
-          $or Calling registerAccount() with weak password
-        $then errorCallback() should be called, which imply that 
-                FirebaseAuthException has been thrown
+          $and there is no signed in user
+        $wheN Calling registerAccount()
+          $and FirebaseAuthException has been thrown
+        $then the errorCallback() should be called
 """, () async {
     await fromLoggedOutToEmailAddressToRegister();
     when(firebaseAuth.createUserWithEmailAndPassword(
             email: validEmail, password: password))
-        .thenThrow(emailAlreadyInUseException);
+        .thenThrow(firebaseAuthException);
     sut.registerAccount(
         validEmail, password, displayName, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(emailAlreadyInUseException)).called(1);
-    /////
-    when(firebaseAuth.createUserWithEmailAndPassword(
-            email: invalidEmail, password: password))
-        .thenThrow(invalidEmailException);
-    sut.registerAccount(
-        invalidEmail, password, displayName, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(invalidEmailException)).called(1);
-    /////
-    when(firebaseAuth.createUserWithEmailAndPassword(
-            email: validEmail, password: password))
-        .thenThrow(operationNotAllowedException);
-    sut.registerAccount(
-        validEmail, password, displayName, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(operationNotAllowedException))
-        .called(1);
-    ////
-    when(firebaseAuth.createUserWithEmailAndPassword(
-            email: validEmail, password: weakPassword))
-        .thenThrow(weakPasswordException);
-    sut.registerAccount(
-        validEmail, weakPassword, displayName, firebaseAuthExceptionCallback);
-    verify(firebaseAuthExceptionCallback(weakPasswordException)).called(1);
+    verify(firebaseAuthExceptionCallback(firebaseAuthException)).called(1);
   });
 
   test("""
         $given $workingWithApplicationState
+          $and there is no signed in user
         $wheN Calling registerAccount() with valid, not-already-used email and 
                 non-weak password
         $then firebaseAuth.createUserWithEmailAndPassword() should be called once
@@ -359,6 +303,28 @@ main() {
     verify(firebaseAuth.signOut()).called(1);
     expect(sut.loginState, ApplicationLoginState.loggedOut);
     verify(notifyListenersCall()).called(1);
+  });
+
+  test("""
+      $given $workingWithApplicationState
+      $wheN Calling resetPassword()
+        $and FirebaseAuthException has been thrown
+      $then the errorCallback should be called
+      """, () {
+    when(firebaseAuth.sendPasswordResetEmail(email: validEmail))
+        .thenThrow(firebaseAuthException);
+    sut.resetPassword(validEmail, firebaseAuthExceptionCallback);
+    verify(firebaseAuthExceptionCallback(firebaseAuthException)).called(1);
+  });
+  test("""
+        $given $workingWithApplicationState
+        $wheN Calling resetPassword()
+        $then Firebase.instance.sendPasswordResetEmail has been called
+      """, () {
+    when(firebaseAuth.sendPasswordResetEmail(email: validEmail))
+        .thenAnswer((realInvocation) => Completer<void>().future);
+    sut.resetPassword(validEmail, firebaseAuthExceptionCallback);
+    verify(firebaseAuth.sendPasswordResetEmail(email: validEmail)).called(1);
   });
 
   test("""
