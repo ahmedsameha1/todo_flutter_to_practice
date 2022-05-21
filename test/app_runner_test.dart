@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:todo_flutter_to_practice/app_runner.dart';
 
 import 'app_runner_test.mocks.dart';
-import 'state/test_constants.dart';
+import 'test_constants.dart';
 
 abstract class RunAppFunction {
   void call(Widget widget);
