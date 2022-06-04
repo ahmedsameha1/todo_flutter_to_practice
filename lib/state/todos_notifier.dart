@@ -8,4 +8,9 @@ class TodosNotifier extends StateNotifier<List<Todo>> {
   void addTodo(Todo todo) {
     state = [...state, todo];
   }
+
+  void removeTodo(String id) {
+    state = [for (final todo in state)
+    if (todo.id != id) todo,];
+  }
 }

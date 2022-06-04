@@ -44,4 +44,31 @@ main() {
     expect(todosNotifier.state[2], todo3);
     expect(todosNotifier.state[3], todo4);
   });
+  test("""
+      $given working with TodosNotifier
+      $wheN Calling removeTodo()
+      $then The todo with the given id is removed from the state list of todos
+""", () {
+    TodosNotifier todosNotifier = TodosNotifier();
+    Todo todo1 = Todo("title1", "description2", false);
+    todosNotifier.addTodo(todo1);
+    todosNotifier.removeTodo(todo1.id);
+    expect(todosNotifier.state.length, 0);
+    Todo todo2 = Todo("title2", "description2", false);
+    Todo todo3 = Todo("title3", "description3", false);
+    todosNotifier.addTodo(todo2);
+    todosNotifier.addTodo(todo3);
+    todosNotifier.addTodo(todo1);
+    todosNotifier.removeTodo(todo3.id);
+    expect(todosNotifier.state.length, 2);
+    expect(todosNotifier.state[0], todo2);
+    expect(todosNotifier.state[1], todo1);
+    Todo todo4 = Todo("title4", "description4", false);
+    todosNotifier = TodosNotifier([todo1, todo2, todo3, todo4]);
+    todosNotifier.removeTodo(todo1.id);
+    todosNotifier.removeTodo(todo4.id);
+    expect(todosNotifier.state.length, 2);
+    expect(todosNotifier.state[0], todo2);
+    expect(todosNotifier.state[1], todo3);
+  });
 }
