@@ -1,24 +1,15 @@
-import 'package:uuid/uuid.dart';
+import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-class Todo {
-  final String id;
-  final String title;
-  final String project;
-  final bool done;
-  Todo(this.title, this.project, this.done) : id = const Uuid().v4() {
-    // title validation
-    if (title.isEmpty) {
-      throw ArgumentError("An empty String", "title");
-    }
-    if (title.length < 3) {
-      throw ArgumentError("length is smaller than 3 characters", "title");
-    }
-    // project validation
-    if (project.isEmpty) {
-      throw ArgumentError("An empty String", "project");
-    }
-    if (project.length < 3) {
-      throw ArgumentError("length is smaller than 3 characters", "project");
-    }
-  }
+part 'todo.freezed.dart';
+
+@freezed
+class Todo with _$Todo {
+  const factory Todo({
+    required TodoIdString id,
+    required String title,
+    required String description,
+    required bool done,
+  }) = _Person;
 }
