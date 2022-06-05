@@ -11,6 +11,6 @@ class TodosNotifier extends StateNotifier<List<Todo>> {
 
   void removeTodo(String id) {
     state = [for (final todo in state)
-    if (todo.id != id) todo,];
+    if (todo.id.value != id) todo,];
   }
 }
