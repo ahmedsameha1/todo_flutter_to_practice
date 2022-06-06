@@ -11,5 +11,5 @@ class Todo with _$Todo {
     required String title,
     required String description,
     required bool done,
-  }) = _Person;
+  }) = _Todo;
 }

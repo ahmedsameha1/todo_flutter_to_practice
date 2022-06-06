@@ -73,6 +73,29 @@ main() {
     expect(todosNotifier.state[0], todo2);
     expect(todosNotifier.state[1], todo3);
   });
+  test("""
+      $given working with TodosNotifier
+      $wheN Calling toggle()
+      $then The done field of the todo with the given id is toggled
+""", () {
+    TodosNotifier todosNotifier = TodosNotifier();
+    Todo todo1 = createTodoInstance("title1", "description1", false);
+    todosNotifier.addTodo(todo1);
+    todosNotifier.toggle(todo1.id.value);
+    expect(todosNotifier.state[0].done, true);
+    Todo todo2 = createTodoInstance("title2", "description2", false);
+    Todo todo3 = createTodoInstance("title3", "description3", false);
+    Todo todo4 = createTodoInstance("title4", "description4", false);
+    todosNotifier = TodosNotifier([todo1, todo2, todo3, todo4]);
+    todosNotifier.toggle(todo1.id.value);
+    todosNotifier.toggle(todo3.id.value);
+    expect(todosNotifier.state[0].done, true);
+    expect(todosNotifier.state[1].done, false);
+    expect(todosNotifier.state[2].done, true);
+    expect(todosNotifier.state[3].done, false);
+    todosNotifier.toggle(todo3.id.value);
+    expect(todosNotifier.state[2].done, false);
+  });
 }
 
 createTodoInstance(String title, String description, bool done) {

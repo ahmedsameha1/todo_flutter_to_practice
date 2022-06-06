@@ -69,21 +69,21 @@ class _$TodoCopyWithImpl<$Res> implements $TodoCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$$_PersonCopyWith<$Res> implements $TodoCopyWith<$Res> {
-  factory _$$_PersonCopyWith(_$_Person value, $Res Function(_$_Person) then) =
-      __$$_PersonCopyWithImpl<$Res>;
+abstract class _$$_TodoCopyWith<$Res> implements $TodoCopyWith<$Res> {
+  factory _$$_TodoCopyWith(_$_Todo value, $Res Function(_$_Todo) then) =
+      __$$_TodoCopyWithImpl<$Res>;
   @override
   $Res call({TodoIdString id, String title, String description, bool done});
 }
 
 /// @nodoc
-class __$$_PersonCopyWithImpl<$Res> extends _$TodoCopyWithImpl<$Res>
-    implements _$$_PersonCopyWith<$Res> {
-  __$$_PersonCopyWithImpl(_$_Person _value, $Res Function(_$_Person) _then)
-      : super(_value, (v) => _then(v as _$_Person));
+class __$$_TodoCopyWithImpl<$Res> extends _$TodoCopyWithImpl<$Res>
+    implements _$$_TodoCopyWith<$Res> {
+  __$$_TodoCopyWithImpl(_$_Todo _value, $Res Function(_$_Todo) _then)
+      : super(_value, (v) => _then(v as _$_Todo));
 
   @override
-  _$_Person get _value => super._value as _$_Person;
+  _$_Todo get _value => super._value as _$_Todo;
 
   @override
   $Res call({
@@ -92,7 +92,7 @@ class __$$_PersonCopyWithImpl<$Res> extends _$TodoCopyWithImpl<$Res>
     Object? description = freezed,
     Object? done = freezed,
   }) {
-    return _then(_$_Person(
+    return _then(_$_Todo(
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -115,8 +115,8 @@ class __$$_PersonCopyWithImpl<$Res> extends _$TodoCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_Person with DiagnosticableTreeMixin implements _Person {
-  const _$_Person(
+class _$_Todo with DiagnosticableTreeMixin implements _Todo {
+  const _$_Todo(
       {required this.id,
       required this.title,
       required this.description,
@@ -151,7 +151,7 @@ class _$_Person with DiagnosticableTreeMixin implements _Person {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Person &&
+            other is _$_Todo &&
             const DeepCollectionEquality().equals(other.id, id) &&
             const DeepCollectionEquality().equals(other.title, title) &&
             const DeepCollectionEquality()
@@ -169,16 +169,16 @@ class _$_Person with DiagnosticableTreeMixin implements _Person {
 
   @JsonKey(ignore: true)
   @override
-  _$$_PersonCopyWith<_$_Person> get copyWith =>
-      __$$_PersonCopyWithImpl<_$_Person>(this, _$identity);
+  _$$_TodoCopyWith<_$_Todo> get copyWith =>
+      __$$_TodoCopyWithImpl<_$_Todo>(this, _$identity);
 }
 
-abstract class _Person implements Todo {
-  const factory _Person(
+abstract class _Todo implements Todo {
+  const factory _Todo(
       {required final TodoIdString id,
       required final String title,
       required final String description,
-      required final bool done}) = _$_Person;
+      required final bool done}) = _$_Todo;
 
   @override
   TodoIdString get id => throw _privateConstructorUsedError;
@@ -190,6 +190,5 @@ abstract class _Person implements Todo {
   bool get done => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$$_PersonCopyWith<_$_Person> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$_TodoCopyWith<_$_Todo> get copyWith => throw _privateConstructorUsedError;
 }

@@ -10,7 +10,16 @@ class TodosNotifier extends StateNotifier<List<Todo>> {
   }
 
   void removeTodo(String id) {
-    state = [for (final todo in state)
-    if (todo.id.value != id) todo,];
+    state = [
+      for (final todo in state)
+        if (todo.id.value != id) todo,
+    ];
+  }
+
+  void toggle(String id) {
+    state = [
+      for (final todo in state)
+        if (todo.id.value == id) todo.copyWith(done: !todo.done) else todo,
+    ];
   }
 }
