@@ -9,16 +9,18 @@ class TodoList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<Todo> todos = ref.watch(todosProvider);
-    return ListView(
-      children: [
-        for (final todo in todos) 
-        CheckboxListTile(
-          title: Text(todo.title),
-          subtitle: Text(todo.description),
-          value: todo.done,
-          onChanged: (bool? value) {},
-        )
-      ],
+    return ListView.builder(
+      itemCount: todos.length,
+      itemBuilder: (listViewContext, index) {
+        return Dismissible(
+            key: Key(todos[index].id.value),
+            child: CheckboxListTile(
+              title: Text(todos[index].title),
+              subtitle: Text(todos[index].description),
+              value: todos[index].done,
+              onChanged: (bool? value) {},
+            ));
+      },
     );
   }
 }
