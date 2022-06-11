@@ -71,4 +71,46 @@ main() {
       expect(checkboxlisttile.value, todo.done);
     }
   });
+  testWidgets("Testing TodoList widget deleting a todo by swiping",
+      (widgetTester) async {
+    final id1 = TodoIdString(const Uuid().v4());
+    final id2 = TodoIdString(const Uuid().v4());
+    final id3 = TodoIdString(const Uuid().v4());
+    Todo todo1 = Todo(
+        id: id1, title: "title1", description: "description1", done: false);
+    Todo todo2 =
+        Todo(id: id2, title: "title2", description: "description2", done: true);
+    Todo todo3 =
+        Todo(id: id3, title: "title3", description: "description3", done: true);
+    final todos = [todo1, todo2, todo3];
+    TodosNotifier todosNotifier = TodosNotifier(todos);
+    var skeleton = createWidgetInASkeleton(const TodoList());
+    var skeletonInProviderScope = ProviderScope(
+        overrides: [todosProvider.overrideWithValue(todosNotifier)],
+        child: skeleton);
+    await widgetTester.pumpWidget(skeletonInProviderScope);
+    final dismissibleFinder = find.byType(Dismissible).at(1);
+    await widgetTester.drag(dismissibleFinder, const Offset(500.0, 0.0));
+    await widgetTester.pump();
+    final containerFinder = find.byType(Container);
+    expect(widgetTester.widget<Container>(containerFinder).color, Colors.red);
+    await widgetTester.pumpAndSettle();
+    expect(containerFinder, findsNothing);
+    expect(find.text(todo2.title), findsNothing);
+    expect(find.text(todo2.description), findsNothing);
+    expect(find.byType(Dismissible), findsNWidgets(2));
+    expect(find.byType(CheckboxListTile), findsNWidgets(2));
+    var dismissible =
+        widgetTester.widget<Dismissible>(find.byType(Dismissible).at(0));
+    var checkboxlisttile = dismissible.child as CheckboxListTile;
+    expect((checkboxlisttile.title as Text).data, todo1.title);
+    expect((checkboxlisttile.subtitle as Text).data, todo1.description);
+    expect(checkboxlisttile.value, todo1.done);
+    dismissible =
+        widgetTester.widget<Dismissible>(find.byType(Dismissible).at(1));
+    checkboxlisttile = dismissible.child as CheckboxListTile;
+    expect((checkboxlisttile.title as Text).data, todo3.title);
+    expect((checkboxlisttile.subtitle as Text).data, todo3.description);
+    expect(checkboxlisttile.value, todo3.done);
+  });
 }

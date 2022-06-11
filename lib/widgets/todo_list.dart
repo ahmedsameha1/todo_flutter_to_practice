@@ -13,13 +13,18 @@ class TodoList extends ConsumerWidget {
       itemCount: todos.length,
       itemBuilder: (listViewContext, index) {
         return Dismissible(
-            key: Key(todos[index].id.value),
-            child: CheckboxListTile(
-              title: Text(todos[index].title),
-              subtitle: Text(todos[index].description),
-              value: todos[index].done,
-              onChanged: (bool? value) {},
-            ));
+          key: Key(todos[index].id.value),
+          onDismissed: (direction) {
+            ref.read(todosProvider.notifier).removeTodo(todos[index].id.value);
+          },
+          background: Container(color: Colors.red),
+          child: CheckboxListTile(
+            title: Text(todos[index].title),
+            subtitle: Text(todos[index].description),
+            value: todos[index].done,
+            onChanged: (bool? value) {},
+          ),
+        );
       },
     );
   }
