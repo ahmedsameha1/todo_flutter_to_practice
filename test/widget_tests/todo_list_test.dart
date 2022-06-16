@@ -27,7 +27,10 @@ main() {
     await widgetTester.pumpWidget(skeletonInProviderScope);
     expect(find.byType(TodoList), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
-    for (final todo in todos) {
+    for (int i = 0; i < todos.length; i++) {
+      final todo = todos[i];
+      final finder = find.byType(Dismissible).at(i);
+      expect(finder, findsOneWidget);
       final dismissible =
           widgetTester.widget<Dismissible>(find.byKey(Key(todo.id.value)));
       final checkboxlisttile = dismissible.child as CheckboxListTile;
@@ -38,8 +41,8 @@ main() {
   });
   testWidgets("Testing TodoList widget when long list of Todos",
       (widgetTester) async {
-    const lengthOfList = 100;
-    const double delta = lengthOfList / 2;
+    const lengthOfList = 300;
+    const double delta = lengthOfList / 6;
     const uuid = Uuid();
     var ids = <TodoIdString>[];
     var todos = <Todo>[];
@@ -61,7 +64,9 @@ main() {
     await widgetTester.pumpWidget(skeletonInProviderScope);
     expect(find.byType(TodoList), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
-    for (final todo in todos) {
+    Dismissible? previousDismissible;
+    for (int j = 0; j < todos.length; j++) {
+      final todo = todos[j];
       final finder = find.byKey(Key(todo.id.value));
       await widgetTester.scrollUntilVisible(finder, delta);
       final dismissible = widgetTester.widget<Dismissible>(finder);
@@ -69,6 +74,14 @@ main() {
       expect((checkboxlisttile.title as Text).data, todo.title);
       expect((checkboxlisttile.subtitle as Text).data, todo.description);
       expect(checkboxlisttile.value, todo.done);
+      final dismissibleWidgetList = widgetTester
+          .widgetList<Dismissible>(find.byType(Dismissible))
+          .toList();
+      if (j > 0) {
+        expect(dismissibleWidgetList.indexOf(dismissible),
+          equals(dismissibleWidgetList.indexOf(previousDismissible!) + 1));
+      }
+      previousDismissible = dismissible;
     }
   });
   testWidgets("Testing TodoList widget deleting a todo by swiping",
