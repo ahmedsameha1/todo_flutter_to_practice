@@ -22,7 +22,11 @@ class TodoList extends ConsumerWidget {
             title: Text(todos[index].title),
             subtitle: Text(todos[index].description),
             value: todos[index].done,
-            onChanged: (bool? value) {},
+            onChanged: (bool? value) {
+              if (value != null) {
+                ref.read(todosProvider.notifier).toggle(todos[index].id.value);
+              }
+            },
           ),
         );
       },

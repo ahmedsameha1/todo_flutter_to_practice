@@ -79,7 +79,7 @@ main() {
           .toList();
       if (j > 0) {
         expect(dismissibleWidgetList.indexOf(dismissible),
-          equals(dismissibleWidgetList.indexOf(previousDismissible!) + 1));
+            equals(dismissibleWidgetList.indexOf(previousDismissible!) + 1));
       }
       previousDismissible = dismissible;
     }
@@ -125,5 +125,28 @@ main() {
     expect((checkboxlisttile.title as Text).data, todo3.title);
     expect((checkboxlisttile.subtitle as Text).data, todo3.description);
     expect(checkboxlisttile.value, todo3.done);
+  });
+  testWidgets("Testing the done checkbox", (WidgetTester tester) async {
+    final id1 = TodoIdString(const Uuid().v4());
+    final id2 = TodoIdString(const Uuid().v4());
+    final id3 = TodoIdString(const Uuid().v4());
+    Todo todo1 = Todo(
+        id: id1, title: "title1", description: "description1", done: false);
+    Todo todo2 =
+        Todo(id: id2, title: "title2", description: "description2", done: true);
+    Todo todo3 =
+        Todo(id: id3, title: "title3", description: "description3", done: true);
+    final todos = [todo1, todo2, todo3];
+    TodosNotifier todosNotifier = TodosNotifier(todos);
+    var skeleton = createWidgetInASkeleton(const TodoList());
+    var skeletonInProviderScope = ProviderScope(
+        overrides: [todosProvider.overrideWithValue(todosNotifier)],
+        child: skeleton);
+    await tester.pumpWidget(skeletonInProviderScope);
+    await tester.tap(find.byType(CheckboxListTile).at(0));
+    await tester.pumpAndSettle();
+    expect(todosNotifier.state[0].done, true);
+    expect(tester
+        .widget<CheckboxListTile>(find.byType(CheckboxListTile).at(0)).value, true);
   });
 }
