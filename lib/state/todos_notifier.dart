@@ -22,4 +22,16 @@ class TodosNotifier extends StateNotifier<List<Todo>> {
         if (todo.id.value == id) todo.copyWith(done: !todo.done) else todo,
     ];
   }
+
+  void updateTodo(String id, Todo toUpdateFromTodo) {
+    state = [
+      for (final todo in state)
+        if (todo.id.value == id)
+          todo.copyWith(title: toUpdateFromTodo.title)
+            .copyWith(done: toUpdateFromTodo.done)
+            .copyWith(description: toUpdateFromTodo.description)
+        else
+          todo,
+    ];
+  }
 }

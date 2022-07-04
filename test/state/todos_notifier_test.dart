@@ -96,6 +96,30 @@ main() {
     todosNotifier.toggle(todo3.id.value);
     expect(todosNotifier.state[2].done, false);
   });
+  test("""
+      $given working with TodosNotifier
+      $wheN Calling updateTodo()
+      $then The todo with the given id is updated with the new values
+""", () {
+    const title = "title";
+    const description = "description";
+    Todo todo1 = createTodoInstance("${title}1", "${description}1", false);
+    Todo todo2 = createTodoInstance("${title}2", "${description}2", false);
+    Todo todo3 = createTodoInstance("${title}3", "${description}3", false);
+    Todo toUpdateFromTodo =
+        createTodoInstance("my title", "my description", true);
+    TodosNotifier todosNotifier = TodosNotifier([todo1, todo2, todo3]);
+    todosNotifier.updateTodo(todo2.id.value, toUpdateFromTodo);
+    expect(todosNotifier.state[0].done, false);
+    expect(todosNotifier.state[1].done, true);
+    expect(todosNotifier.state[2].done, false);
+    expect(todosNotifier.state[0].title, "${title}1");
+    expect(todosNotifier.state[1].title, "my title");
+    expect(todosNotifier.state[2].title, "${title}3");
+    expect(todosNotifier.state[0].description, "${description}1");
+    expect(todosNotifier.state[1].description, "my description");
+    expect(todosNotifier.state[2].description, "${description}3");
+  });
 }
 
 createTodoInstance(String title, String description, bool done) {
