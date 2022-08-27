@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
 
@@ -5,7 +6,18 @@ import 'skeleton_for_widget_testing.dart';
 
 main() {
   final widgetInSkeleton = createWidgetInASkeleton(const TodoForm());
-  testWidgets("Test the presense of the main widgets", (tester) async => {});
+  testWidgets("Test the presense of the main widgets",
+      (WidgetTester tester) async {
+    await tester.pumpWidget(widgetInSkeleton);
+    expect(find.byType(Form), findsOneWidget);
+    expect(find.byType(Column), findsOneWidget);
+    final TextFormField titleTextFormField =
+        tester.widget(find.byType(TextFormField).at(0));
+    final TextField titleTextField =
+        tester.widget(find.byType(TextField).at(0));
+    expect(
+        (titleTextField.decoration!.label as Text).data, TodoForm.labelString);
+  });
   group("Test form validation", () {
     testWidgets(
         "Testing the validation of the title text field", (tester) async => {});
