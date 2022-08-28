@@ -6,7 +6,9 @@ import 'skeleton_for_widget_testing.dart';
 
 main() {
   String title = "title";
-  final widgetInSkeleton = createWidgetInASkeleton(TodoForm(title));
+  String description = "description";
+  final widgetInSkeleton =
+      createWidgetInASkeleton(TodoForm(title, description));
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -18,8 +20,8 @@ main() {
         tester.widget(find.byType(TextField).at(0));
     expect(
         (titleTextField.decoration!.label as Text).data, TodoForm.labelString);
-    expect(titleTextFormField.initialValue, title);
     expect(titleTextField.keyboardType, TextInputType.text);
+    expect(titleTextFormField.initialValue, title);
     final TextFormField descriptionTextFormField =
         tester.widget(find.byType(TextFormField).at(1));
     final TextField descriptionTextField =
@@ -28,6 +30,7 @@ main() {
         TodoForm.descriptionString);
     expect(descriptionTextField.keyboardType, TextInputType.multiline);
     expect(descriptionTextField.maxLines, 5);
+    expect(descriptionTextFormField.initialValue, description);
   });
   group("Test form validation", () {
     testWidgets(

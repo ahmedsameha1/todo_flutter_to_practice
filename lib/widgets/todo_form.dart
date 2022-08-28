@@ -4,7 +4,8 @@ class TodoForm extends StatelessWidget {
   static const String labelString = "Label";
   static const String descriptionString = "Description";
   final String title;
-  const TodoForm(this.title, {Key? key}) : super(key: key);
+  final String description;
+  const TodoForm(this.title, this.description, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,7 @@ class TodoForm extends StatelessWidget {
             decoration: const InputDecoration(label: Text(descriptionString)),
             keyboardType: TextInputType.multiline,
             maxLines: 5,
+            initialValue: description,
           ),
         ],
       ),
