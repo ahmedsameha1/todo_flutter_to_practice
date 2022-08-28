@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
 
+import 'my_matchers.dart';
 import 'skeleton_for_widget_testing.dart';
 
 main() {
@@ -37,6 +38,12 @@ main() {
     expect(doneCheckbox.value, done);
     final TextButton submissionButton = tester.widget(find.byType(TextButton));
     expect((submissionButton.child as Text).data, buttonText);
+    expect(tester.widgetList(find.bySubtype()).toList(),
+        FirstPrecedesSecond(doneCheckbox, titleTextFormField));
+    expect(tester.widgetList(find.bySubtype()).toList(),
+        FirstPrecedesSecond(titleTextFormField, descriptionTextFormField));
+    expect(tester.widgetList(find.bySubtype()).toList(),
+        FirstPrecedesSecond(descriptionTextFormField, submissionButton));
   });
   group("Test form validation", () {
     testWidgets(
