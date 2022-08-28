@@ -6,7 +6,9 @@ class TodoForm extends StatelessWidget {
   final String title;
   final String description;
   final bool done;
-  const TodoForm(this.title, this.description, this.done, {Key? key})
+  final String textOfButton;
+  const TodoForm(this.title, this.description, this.done, this.textOfButton,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -25,6 +27,7 @@ class TodoForm extends StatelessWidget {
             maxLines: 5,
             initialValue: description,
           ),
+          TextButton(onPressed: null, child: Text(textOfButton))
         ],
       ),
     );

@@ -8,8 +8,9 @@ main() {
   String title = "title";
   String description = "description";
   bool done = true;
+  String buttonText = "Do";
   final widgetInSkeleton =
-      createWidgetInASkeleton(TodoForm(title, description, done));
+      createWidgetInASkeleton(TodoForm(title, description, done, buttonText));
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -34,6 +35,8 @@ main() {
     expect(descriptionTextFormField.initialValue, description);
     final Checkbox doneCheckbox = tester.widget(find.byType(Checkbox));
     expect(doneCheckbox.value, done);
+    final TextButton submissionButton = tester.widget(find.byType(TextButton));
+    expect((submissionButton.child as Text).data, buttonText);
   });
   group("Test form validation", () {
     testWidgets(
