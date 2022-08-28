@@ -5,13 +5,16 @@ class TodoForm extends StatelessWidget {
   static const String descriptionString = "Description";
   final String title;
   final String description;
-  const TodoForm(this.title, this.description, {Key? key}) : super(key: key);
+  final bool done;
+  const TodoForm(this.title, this.description, this.done, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Form(
       child: Column(
         children: [
+          Checkbox(value: done, onChanged: null),
           TextFormField(
             decoration: const InputDecoration(label: Text(labelString)),
             initialValue: title,

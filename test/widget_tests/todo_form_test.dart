@@ -7,8 +7,9 @@ import 'skeleton_for_widget_testing.dart';
 main() {
   String title = "title";
   String description = "description";
+  bool done = true;
   final widgetInSkeleton =
-      createWidgetInASkeleton(TodoForm(title, description));
+      createWidgetInASkeleton(TodoForm(title, description, done));
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -31,6 +32,8 @@ main() {
     expect(descriptionTextField.keyboardType, TextInputType.multiline);
     expect(descriptionTextField.maxLines, 5);
     expect(descriptionTextFormField.initialValue, description);
+    final Checkbox doneCheckbox = tester.widget(find.byType(Checkbox));
+    expect(doneCheckbox.value, done);
   });
   group("Test form validation", () {
     testWidgets(
