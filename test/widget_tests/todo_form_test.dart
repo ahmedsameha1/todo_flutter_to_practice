@@ -5,7 +5,8 @@ import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
 import 'skeleton_for_widget_testing.dart';
 
 main() {
-  final widgetInSkeleton = createWidgetInASkeleton(const TodoForm());
+  String title = "title";
+  final widgetInSkeleton = createWidgetInASkeleton(TodoForm(title));
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -17,6 +18,8 @@ main() {
         tester.widget(find.byType(TextField).at(0));
     expect(
         (titleTextField.decoration!.label as Text).data, TodoForm.labelString);
+    expect(titleTextFormField.initialValue, title);
+    expect(titleTextField.keyboardType, TextInputType.text);
   });
   group("Test form validation", () {
     testWidgets(
