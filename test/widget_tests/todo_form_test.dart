@@ -20,6 +20,14 @@ main() {
         (titleTextField.decoration!.label as Text).data, TodoForm.labelString);
     expect(titleTextFormField.initialValue, title);
     expect(titleTextField.keyboardType, TextInputType.text);
+    final TextFormField descriptionTextFormField =
+        tester.widget(find.byType(TextFormField).at(1));
+    final TextField descriptionTextField =
+        tester.widget(find.byType(TextField).at(1));
+    expect((descriptionTextField.decoration!.label as Text).data,
+        TodoForm.descriptionString);
+    expect(descriptionTextField.keyboardType, TextInputType.multiline);
+    expect(descriptionTextField.maxLines, 5);
   });
   group("Test form validation", () {
     testWidgets(
