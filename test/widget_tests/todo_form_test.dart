@@ -46,8 +46,24 @@ main() {
         FirstPrecedesSecond(descriptionTextFormField, submissionButton));
   });
   group("Test form validation", () {
-    testWidgets(
-        "Testing the validation of the title text field", (tester) async => {});
+    testWidgets("Testing the validation of the title text field",
+        (WidgetTester tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final submissionTextButtonFinder = find.byType(TextButton);
+      final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
+      await tester.enterText(titleTextFormFieldFinder, " ");
+      await tester.tap(submissionTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(find.text(TodoForm.titleValidationErrorMessage), findsOneWidget);
+      expect(
+          tester.widgetList(find.bySubtype()).toList(),
+          FirstPrecedesSecond(tester.widget(titleTextFormFieldFinder),
+              tester.widget(find.text(TodoForm.titleValidationErrorMessage))));
+      await tester.enterText(titleTextFormFieldFinder, " f");
+      await tester.tap(submissionTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(find.text(TodoForm.titleValidationErrorMessage), findsNothing);
+    });
     testWidgets("Testing the validation of the description text field",
         (tester) async => {});
     testWidgets("Testing the validation when no text in the two text fields",
