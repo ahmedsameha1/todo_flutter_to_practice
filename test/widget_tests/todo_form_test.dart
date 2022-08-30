@@ -65,7 +65,23 @@ main() {
       expect(find.text(TodoForm.titleValidationErrorMessage), findsNothing);
     });
     testWidgets("Testing the validation of the description text field",
-        (tester) async => {});
+        (tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final submissionTextButtonFinder = find.byType(TextButton);
+      final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+      await tester.enterText(descriptionTextFormFieldFinder, " ");
+      await tester.tap(submissionTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(find.text(TodoForm.descriptionValidationErrorMessage), findsOneWidget);
+      expect(
+          tester.widgetList(find.bySubtype()).toList(),
+          FirstPrecedesSecond(tester.widget(descriptionTextFormFieldFinder),
+              tester.widget(find.text(TodoForm.descriptionValidationErrorMessage))));
+      await tester.enterText(descriptionTextFormFieldFinder, "h ");
+      await tester.tap(submissionTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(find.text(TodoForm.descriptionValidationErrorMessage), findsNothing);
+    });
     testWidgets("Testing the validation when no text in the two text fields",
         (tester) async => {});
     testWidgets(

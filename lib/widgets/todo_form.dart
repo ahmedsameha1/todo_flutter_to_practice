@@ -4,6 +4,7 @@ class TodoForm extends StatelessWidget {
   static const String labelString = "Label";
   static const String descriptionString = "Description";
   static const String titleValidationErrorMessage = "Title cannot be empty!";
+  static const String descriptionValidationErrorMessage = "Description cannot by empty!";
   final String title;
   final String description;
   final bool done;
@@ -35,6 +36,12 @@ class TodoForm extends StatelessWidget {
             keyboardType: TextInputType.multiline,
             maxLines: 5,
             initialValue: description,
+            validator: (value) {
+              if (value == null || value.isEmpty || value.trim().isEmpty) {
+                return descriptionValidationErrorMessage;
+              }
+              return null;
+            },
           ),
           TextButton(
               onPressed: () {
