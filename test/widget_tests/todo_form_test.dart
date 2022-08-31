@@ -108,8 +108,18 @@ main() {
               tester.widget(
                   find.text(TodoForm.descriptionValidationErrorMessage))));
     });
-    testWidgets(
-        "The checkbox changes its value when clicked", (tester) async => {});
+    testWidgets("The checkbox changes its value when clicked", (tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final doneCheckboxFinder = find.byType(Checkbox);
+      await tester.tap(doneCheckboxFinder);
+      await tester.pumpAndSettle();
+      expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
+          !done);
+      await tester.tap(doneCheckboxFinder);
+      await tester.pumpAndSettle();
+      expect(
+          (doneCheckboxFinder.evaluate().first.widget as Checkbox).value, done);
+    });
     testWidgets(
         "The submission function get called when the text button is being clicked",
         (tester) async => {});

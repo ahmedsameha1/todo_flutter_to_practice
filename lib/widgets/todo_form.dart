@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 
-class TodoForm extends StatelessWidget {
+class TodoForm extends StatefulWidget {
   static const String labelString = "Label";
   static const String descriptionString = "Description";
   static const String titleValidationErrorMessage = "Title cannot be empty!";
-  static const String descriptionValidationErrorMessage = "Description cannot by empty!";
+  static const String descriptionValidationErrorMessage =
+      "Description cannot by empty!";
   final String title;
   final String description;
-  final bool done;
+  bool done;
   final String textOfButton;
-  final GlobalKey<FormState> _formGlobalKey = GlobalKey();
+
   TodoForm(this.title, this.description, this.done, this.textOfButton,
       {Key? key})
       : super(key: key);
+
+  @override
+  State<TodoForm> createState() => _TodoFormState();
+}
+
+class _TodoFormState extends State<TodoForm> {
+  final GlobalKey<FormState> _formGlobalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -20,25 +28,33 @@ class TodoForm extends StatelessWidget {
       key: _formGlobalKey,
       child: Column(
         children: [
-          Checkbox(value: done, onChanged: null),
+          Checkbox(
+              value: widget.done,
+              onChanged: (value) {
+                setState(() {
+                  widget.done = !widget.done;
+                });
+              }),
           TextFormField(
-            decoration: const InputDecoration(label: Text(labelString)),
-            initialValue: title,
+            decoration:
+                const InputDecoration(label: Text(TodoForm.labelString)),
+            initialValue: widget.title,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
-                return titleValidationErrorMessage;
+                return TodoForm.titleValidationErrorMessage;
               }
               return null;
             },
           ),
           TextFormField(
-            decoration: const InputDecoration(label: Text(descriptionString)),
+            decoration:
+                const InputDecoration(label: Text(TodoForm.descriptionString)),
             keyboardType: TextInputType.multiline,
             maxLines: 5,
-            initialValue: description,
+            initialValue: widget.description,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
-                return descriptionValidationErrorMessage;
+                return TodoForm.descriptionValidationErrorMessage;
               }
               return null;
             },
@@ -47,7 +63,7 @@ class TodoForm extends StatelessWidget {
               onPressed: () {
                 _formGlobalKey.currentState!.validate();
               },
-              child: Text(textOfButton))
+              child: Text(widget.textOfButton))
         ],
       ),
     );
