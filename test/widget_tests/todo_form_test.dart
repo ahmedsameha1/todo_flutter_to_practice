@@ -72,18 +72,42 @@ main() {
       await tester.enterText(descriptionTextFormFieldFinder, " ");
       await tester.tap(submissionTextButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.text(TodoForm.descriptionValidationErrorMessage), findsOneWidget);
+      expect(find.text(TodoForm.descriptionValidationErrorMessage),
+          findsOneWidget);
       expect(
           tester.widgetList(find.bySubtype()).toList(),
-          FirstPrecedesSecond(tester.widget(descriptionTextFormFieldFinder),
-              tester.widget(find.text(TodoForm.descriptionValidationErrorMessage))));
+          FirstPrecedesSecond(
+              tester.widget(descriptionTextFormFieldFinder),
+              tester.widget(
+                  find.text(TodoForm.descriptionValidationErrorMessage))));
       await tester.enterText(descriptionTextFormFieldFinder, "h ");
       await tester.tap(submissionTextButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.text(TodoForm.descriptionValidationErrorMessage), findsNothing);
+      expect(
+          find.text(TodoForm.descriptionValidationErrorMessage), findsNothing);
     });
     testWidgets("Testing the validation when no text in the two text fields",
-        (tester) async => {});
+        (tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final submissionTextButtonFinder = find.byType(TextButton);
+      final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
+      final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+      await tester.enterText(titleTextFormFieldFinder, " ");
+      await tester.enterText(descriptionTextFormFieldFinder, " ");
+      await tester.tap(submissionTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(
+          tester.widgetList(find.bySubtype()).toList(),
+          FirstPrecedesSecond(
+              tester.widget(find.text(TodoForm.titleValidationErrorMessage)),
+              tester.widget(descriptionTextFormFieldFinder)));
+      expect(
+          tester.widgetList(find.bySubtype()).toList(),
+          FirstPrecedesSecond(
+              tester.widget(descriptionTextFormFieldFinder),
+              tester.widget(
+                  find.text(TodoForm.descriptionValidationErrorMessage))));
+    });
     testWidgets(
         "The checkbox changes its value when clicked", (tester) async => {});
     testWidgets(
