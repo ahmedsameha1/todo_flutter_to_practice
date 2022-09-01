@@ -74,6 +74,13 @@ class _TodoFormState extends ConsumerState<TodoForm> {
               }
               return null;
             },
+            onSaved: (newValue) {
+              if (newValue != null) {
+                setState(() {
+                  widget.todo = widget.todo.copyWith(description: newValue);
+                });
+              }
+            },
           ),
           TextButton(
               onPressed: () {

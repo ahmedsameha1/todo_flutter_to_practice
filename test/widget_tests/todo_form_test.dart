@@ -150,9 +150,13 @@ main() {
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
       await tester.enterText(find.byType(TextFormField).at(0), title);
       await tester.enterText(find.byType(TextFormField).at(1), description);
+      await tester.tap(find.byType(Checkbox));
       await tester.tap(find.byType(TextButton));
       await tester.pumpAndSettle();
       expect(todosNotifier.state[1].title, title);
+      expect(todosNotifier.state[1].description, description);
+      expect(todosNotifier.state[1].done, !todo2.done);
+      expect(todosNotifier.state[1].id, todo2.id);
     });
   });
 }
