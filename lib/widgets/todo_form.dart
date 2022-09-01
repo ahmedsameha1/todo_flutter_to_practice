@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todo_flutter_to_practice/domain_model/todo.dart';
+import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
-class TodoForm extends StatefulWidget {
+class TodoForm extends ConsumerStatefulWidget {
+  static void update(
+      GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {
+    formKey.currentState!.save();
+    widgetRef
+        .read(todosProvider.notifier)
+        .updateTodo(todoForm.todo.id.value, todoForm.todo);
+  }
+
   static const String labelString = "Label";
   static const String descriptionString = "Description";
   static const String titleValidationErrorMessage = "Title cannot be empty!";
   static const String descriptionValidationErrorMessage =
       "Description cannot by empty!";
-  final String title;
-  final String description;
-  bool done;
+  Todo todo;
   final String textOfButton;
+  final Function(GlobalKey<FormState> key, WidgetRef reF, TodoForm to) action;
 
-  TodoForm(this.title, this.description, this.done, this.textOfButton,
-      {Key? key})
+  TodoForm(this.todo, this.textOfButton, this.action, {Key? key})
       : super(key: key);
 
   @override
-  State<TodoForm> createState() => _TodoFormState();
+  ConsumerState<TodoForm> createState() => _TodoFormState();
 }
 
-class _TodoFormState extends State<TodoForm> {
+class _TodoFormState extends ConsumerState<TodoForm> {
   final GlobalKey<FormState> _formGlobalKey = GlobalKey();
 
   @override
@@ -29,21 +38,28 @@ class _TodoFormState extends State<TodoForm> {
       child: Column(
         children: [
           Checkbox(
-              value: widget.done,
+              value: widget.todo.done,
               onChanged: (value) {
                 setState(() {
-                  widget.done = !widget.done;
+                  widget.todo = widget.todo.copyWith(done: !widget.todo.done);
                 });
               }),
           TextFormField(
             decoration:
                 const InputDecoration(label: Text(TodoForm.labelString)),
-            initialValue: widget.title,
+            initialValue: widget.todo.title,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
                 return TodoForm.titleValidationErrorMessage;
               }
               return null;
+            },
+            onSaved: (newValue) {
+              if (newValue != null) {
+                setState(() {
+                  widget.todo = widget.todo.copyWith(title: newValue);
+                });
+              }
             },
           ),
           TextFormField(
@@ -51,7 +67,7 @@ class _TodoFormState extends State<TodoForm> {
                 const InputDecoration(label: Text(TodoForm.descriptionString)),
             keyboardType: TextInputType.multiline,
             maxLines: 5,
-            initialValue: widget.description,
+            initialValue: widget.todo.description,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
                 return TodoForm.descriptionValidationErrorMessage;
@@ -61,7 +77,9 @@ class _TodoFormState extends State<TodoForm> {
           ),
           TextButton(
               onPressed: () {
-                _formGlobalKey.currentState!.validate();
+                if (_formGlobalKey.currentState!.validate()) {
+                  widget.action(_formGlobalKey, ref, widget);
+                }
               },
               child: Text(widget.textOfButton))
         ],

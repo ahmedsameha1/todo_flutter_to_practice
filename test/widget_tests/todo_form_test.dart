@@ -1,20 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:todo_flutter_to_practice/domain_model/todo.dart';
+import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
+import 'package:todo_flutter_to_practice/state/notifiers.dart';
+import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
+import 'package:uuid/uuid.dart';
 
 import 'my_matchers.dart';
 import 'skeleton_for_widget_testing.dart';
 
 main() {
-  String title = "title";
-  String description = "description";
-  bool done = true;
   String buttonText = "Do";
-  final widgetInSkeleton =
-      createWidgetInASkeleton(TodoForm(title, description, done, buttonText));
+  final id1 = TodoIdString(const Uuid().v4());
+  final id2 = TodoIdString(const Uuid().v4());
+  final id3 = TodoIdString(const Uuid().v4());
+  Todo todo1 =
+      Todo(id: id1, title: "title1", description: "description1", done: false);
+  Todo todo2 =
+      Todo(id: id2, title: "title2", description: "description2", done: true);
+  Todo todo3 =
+      Todo(id: id3, title: "title3", description: "description3", done: false);
+  final todos = [todo1, todo2, todo3];
+  late TodosNotifier todosNotifier;
+  late ProviderScope widgetInSkeletonInProviderScope;
+  late Widget widgetInSkeleton;
+  setUp(() {
+    todosNotifier = TodosNotifier(todos);
+    widgetInSkeleton =
+        createWidgetInASkeleton(TodoForm(todo2, buttonText, TodoForm.update));
+    widgetInSkeletonInProviderScope = ProviderScope(
+        overrides: [todosProvider.overrideWithValue(todosNotifier)],
+        child: widgetInSkeleton);
+  });
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
-    await tester.pumpWidget(widgetInSkeleton);
+    await tester.pumpWidget(widgetInSkeletonInProviderScope);
     expect(find.byType(Form), findsOneWidget);
     expect(find.byType(Column), findsOneWidget);
     final TextFormField titleTextFormField =
@@ -24,7 +46,7 @@ main() {
     expect(
         (titleTextField.decoration!.label as Text).data, TodoForm.labelString);
     expect(titleTextField.keyboardType, TextInputType.text);
-    expect(titleTextFormField.initialValue, title);
+    expect(titleTextFormField.initialValue, todos[1].title);
     final TextFormField descriptionTextFormField =
         tester.widget(find.byType(TextFormField).at(1));
     final TextField descriptionTextField =
@@ -33,9 +55,9 @@ main() {
         TodoForm.descriptionString);
     expect(descriptionTextField.keyboardType, TextInputType.multiline);
     expect(descriptionTextField.maxLines, 5);
-    expect(descriptionTextFormField.initialValue, description);
+    expect(descriptionTextFormField.initialValue, todos[1].description);
     final Checkbox doneCheckbox = tester.widget(find.byType(Checkbox));
-    expect(doneCheckbox.value, done);
+    expect(doneCheckbox.value, todos[1].done);
     final TextButton submissionButton = tester.widget(find.byType(TextButton));
     expect((submissionButton.child as Text).data, buttonText);
     expect(tester.widgetList(find.bySubtype()).toList(),
@@ -48,7 +70,7 @@ main() {
   group("Test form validation", () {
     testWidgets("Testing the validation of the title text field",
         (WidgetTester tester) async {
-      await tester.pumpWidget(widgetInSkeleton);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
       final submissionTextButtonFinder = find.byType(TextButton);
       final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
       await tester.enterText(titleTextFormFieldFinder, " ");
@@ -66,7 +88,7 @@ main() {
     });
     testWidgets("Testing the validation of the description text field",
         (tester) async {
-      await tester.pumpWidget(widgetInSkeleton);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
       final submissionTextButtonFinder = find.byType(TextButton);
       final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
       await tester.enterText(descriptionTextFormFieldFinder, " ");
@@ -88,7 +110,7 @@ main() {
     });
     testWidgets("Testing the validation when no text in the two text fields",
         (tester) async {
-      await tester.pumpWidget(widgetInSkeleton);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
       final submissionTextButtonFinder = find.byType(TextButton);
       final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
       final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
@@ -109,19 +131,28 @@ main() {
                   find.text(TodoForm.descriptionValidationErrorMessage))));
     });
     testWidgets("The checkbox changes its value when clicked", (tester) async {
-      await tester.pumpWidget(widgetInSkeleton);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
       final doneCheckboxFinder = find.byType(Checkbox);
       await tester.tap(doneCheckboxFinder);
       await tester.pumpAndSettle();
       expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
-          !done);
+          !todos[1].done);
       await tester.tap(doneCheckboxFinder);
       await tester.pumpAndSettle();
-      expect(
-          (doneCheckboxFinder.evaluate().first.widget as Checkbox).value, done);
+      expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
+          todos[1].done);
     });
     testWidgets(
         "The submission function get called when the text button is being clicked",
-        (tester) async => {});
+        (tester) async {
+      const title = "my title";
+      const description = "my description";
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      await tester.enterText(find.byType(TextFormField).at(0), title);
+      await tester.enterText(find.byType(TextFormField).at(1), description);
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
+      expect(todosNotifier.state[1].title, title);
+    });
   });
 }
