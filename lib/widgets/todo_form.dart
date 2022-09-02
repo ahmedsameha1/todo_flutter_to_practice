@@ -1,32 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_flutter_to_practice/domain_model/todo.dart';
+import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
+import 'package:uuid/uuid.dart';
 
 class TodoForm extends ConsumerStatefulWidget {
   final Function() goRouterContextPopFunction;
   static void update(
       GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {
     formKey.currentState!.save();
-    widgetRef
-        .read(todosProvider.notifier)
-        .updateTodo(todoForm.todo.id.value, todoForm.todo);
+    final todo = Todo(
+        id: todoForm.id!,
+        title: todoForm.title!,
+        description: todoForm.description!,
+        done: todoForm.done!);
+    widgetRef.read(todosProvider.notifier).updateTodo(todo.id.value, todo);
     todoForm.goRouterContextPopFunction();
   }
+
+  static void create(
+      GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {}
 
   static const String labelString = "Label";
   static const String descriptionString = "Description";
   static const String titleValidationErrorMessage = "Title cannot be empty!";
   static const String descriptionValidationErrorMessage =
       "Description cannot by empty!";
-  Todo todo;
-  final String textOfButton;
-  final Function(GlobalKey<FormState> key, WidgetRef reF, TodoForm to) action;
+  late final String? textOfButton;
+  late final Function(GlobalKey<FormState> key, WidgetRef reF, TodoForm to)
+      action;
+  late String? title, description;
+  late bool? done;
+  late TodoIdString? id;
 
-  TodoForm(this.todo, this.textOfButton, this.action,
-      this.goRouterContextPopFunction,
-      {Key? key})
-      : super(key: key);
+  TodoForm(this.goRouterContextPopFunction,
+      {Key? key,
+      TodoIdString? id,
+      String? title,
+      String? description,
+      bool? done})
+      : id = id == null && done == null ? TodoIdString(const Uuid().v4()) : id,
+        title =
+            id == null && title == null && description == null && done == null
+                ? ""
+                : title,
+        description =
+            id == null && title == null && description == null && done == null
+                ? ""
+                : description,
+        done =
+            id == null && title == null && description == null && done == null
+                ? false
+                : done,
+        textOfButton =
+            id == null && title == null && description == null && done == null
+                ? "Create"
+                : "Update",
+        action =
+            id == null && title == null && description == null && done == null
+                ? create
+                : update,
+        super(key: key);
 
   @override
   ConsumerState<TodoForm> createState() => _TodoFormState();
@@ -42,16 +77,16 @@ class _TodoFormState extends ConsumerState<TodoForm> {
       child: Column(
         children: [
           Checkbox(
-              value: widget.todo.done,
+              value: widget.done,
               onChanged: (value) {
                 setState(() {
-                  widget.todo = widget.todo.copyWith(done: !widget.todo.done);
+                  widget.done = !widget.done!;
                 });
               }),
           TextFormField(
             decoration:
                 const InputDecoration(label: Text(TodoForm.labelString)),
-            initialValue: widget.todo.title,
+            initialValue: widget.title,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
                 return TodoForm.titleValidationErrorMessage;
@@ -61,7 +96,7 @@ class _TodoFormState extends ConsumerState<TodoForm> {
             onSaved: (newValue) {
               if (newValue != null) {
                 setState(() {
-                  widget.todo = widget.todo.copyWith(title: newValue);
+                  widget.title = newValue;
                 });
               }
             },
@@ -71,7 +106,7 @@ class _TodoFormState extends ConsumerState<TodoForm> {
                 const InputDecoration(label: Text(TodoForm.descriptionString)),
             keyboardType: TextInputType.multiline,
             maxLines: 5,
-            initialValue: widget.todo.description,
+            initialValue: widget.description,
             validator: (value) {
               if (value == null || value.isEmpty || value.trim().isEmpty) {
                 return TodoForm.descriptionValidationErrorMessage;
@@ -81,7 +116,7 @@ class _TodoFormState extends ConsumerState<TodoForm> {
             onSaved: (newValue) {
               if (newValue != null) {
                 setState(() {
-                  widget.todo = widget.todo.copyWith(description: newValue);
+                  widget.description = newValue;
                 });
               }
             },
@@ -92,7 +127,7 @@ class _TodoFormState extends ConsumerState<TodoForm> {
                   widget.action(_formGlobalKey, ref, widget);
                 }
               },
-              child: Text(widget.textOfButton))
+              child: Text(widget.textOfButton!))
         ],
       ),
     );

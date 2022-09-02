@@ -21,7 +21,7 @@ abstract class GoRouterContextPopFunction {
 @GenerateMocks([GoRouterContextPopFunction])
 main() {
   final goRouterContextPopFunctionCall = MockGoRouterContextPopFunction();
-  String buttonText = "Do";
+  String buttonText = "Update";
   final id1 = TodoIdString(const Uuid().v4());
   final id2 = TodoIdString(const Uuid().v4());
   final id3 = TodoIdString(const Uuid().v4());
@@ -38,7 +38,11 @@ main() {
   setUp(() {
     todosNotifier = TodosNotifier(todos);
     widgetInSkeleton = createWidgetInASkeleton(TodoForm(
-        todo2, buttonText, TodoForm.update, goRouterContextPopFunctionCall));
+        goRouterContextPopFunctionCall,
+        id: todo2.id,
+        title: todo2.title,
+        description: todo2.description,
+        done: todo2.done));
     widgetInSkeletonInProviderScope = ProviderScope(
         overrides: [todosProvider.overrideWithValue(todosNotifier)],
         child: widgetInSkeleton);
