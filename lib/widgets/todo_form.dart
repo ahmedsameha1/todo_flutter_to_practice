@@ -20,7 +20,16 @@ class TodoForm extends ConsumerStatefulWidget {
   }
 
   static void create(
-      GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {}
+      GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {
+    formKey.currentState!.save();
+    final todo = Todo(
+        id: todoForm.id!,
+        title: todoForm.title!,
+        description: todoForm.description!,
+        done: todoForm.done!);
+    widgetRef.read(todosProvider.notifier).addTodo(todo);
+    todoForm.goRouterContextPopFunction();
+  }
 
   static const String labelString = "Label";
   static const String descriptionString = "Description";
