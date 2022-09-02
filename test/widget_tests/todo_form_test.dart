@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:todo_flutter_to_practice/domain_model/todo.dart';
 import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
@@ -10,8 +12,15 @@ import 'package:uuid/uuid.dart';
 
 import 'my_matchers.dart';
 import 'skeleton_for_widget_testing.dart';
+import 'todo_form_test.mocks.dart';
 
+abstract class GoRouterContextPopFunction {
+  void call();
+}
+
+@GenerateMocks([GoRouterContextPopFunction])
 main() {
+  final goRouterContextPopFunctionCall = MockGoRouterContextPopFunction();
   String buttonText = "Do";
   final id1 = TodoIdString(const Uuid().v4());
   final id2 = TodoIdString(const Uuid().v4());
@@ -28,11 +37,12 @@ main() {
   late Widget widgetInSkeleton;
   setUp(() {
     todosNotifier = TodosNotifier(todos);
-    widgetInSkeleton =
-        createWidgetInASkeleton(TodoForm(todo2, buttonText, TodoForm.update));
+    widgetInSkeleton = createWidgetInASkeleton(TodoForm(
+        todo2, buttonText, TodoForm.update, goRouterContextPopFunctionCall));
     widgetInSkeletonInProviderScope = ProviderScope(
         overrides: [todosProvider.overrideWithValue(todosNotifier)],
         child: widgetInSkeleton);
+    reset(goRouterContextPopFunctionCall);
   });
   testWidgets("Test the presense of the main widgets",
       (WidgetTester tester) async {
@@ -142,21 +152,22 @@ main() {
       expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
           todos[1].done);
     });
-    testWidgets(
-        "The submission function get called when the text button is being clicked",
-        (tester) async {
-      const title = "my title";
-      const description = "my description";
-      await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(find.byType(TextFormField).at(0), title);
-      await tester.enterText(find.byType(TextFormField).at(1), description);
-      await tester.tap(find.byType(Checkbox));
-      await tester.tap(find.byType(TextButton));
-      await tester.pumpAndSettle();
-      expect(todosNotifier.state[1].title, title);
-      expect(todosNotifier.state[1].description, description);
-      expect(todosNotifier.state[1].done, !todo2.done);
-      expect(todosNotifier.state[1].id, todo2.id);
-    });
+  });
+  testWidgets(
+      "The submission function get called when the text button is being clicked",
+      (tester) async {
+    const title = "my title";
+    const description = "my description";
+    await tester.pumpWidget(widgetInSkeletonInProviderScope);
+    await tester.enterText(find.byType(TextFormField).at(0), title);
+    await tester.enterText(find.byType(TextFormField).at(1), description);
+    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.byType(TextButton));
+    await tester.pumpAndSettle();
+    expect(todosNotifier.state[1].title, title);
+    expect(todosNotifier.state[1].description, description);
+    expect(todosNotifier.state[1].done, !todo2.done);
+    expect(todosNotifier.state[1].id, todo2.id);
+    verify(goRouterContextPopFunctionCall()).called(1);
   });
 }

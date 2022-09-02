@@ -4,12 +4,14 @@ import 'package:todo_flutter_to_practice/domain_model/todo.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
 class TodoForm extends ConsumerStatefulWidget {
+  final Function() goRouterContextPopFunction;
   static void update(
       GlobalKey<FormState> formKey, WidgetRef widgetRef, TodoForm todoForm) {
     formKey.currentState!.save();
     widgetRef
         .read(todosProvider.notifier)
         .updateTodo(todoForm.todo.id.value, todoForm.todo);
+    todoForm.goRouterContextPopFunction();
   }
 
   static const String labelString = "Label";
@@ -21,7 +23,9 @@ class TodoForm extends ConsumerStatefulWidget {
   final String textOfButton;
   final Function(GlobalKey<FormState> key, WidgetRef reF, TodoForm to) action;
 
-  TodoForm(this.todo, this.textOfButton, this.action, {Key? key})
+  TodoForm(this.todo, this.textOfButton, this.action,
+      this.goRouterContextPopFunction,
+      {Key? key})
       : super(key: key);
 
   @override
