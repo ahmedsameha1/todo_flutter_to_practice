@@ -15,7 +15,7 @@ class TodoForm extends ConsumerStatefulWidget {
         title: todoForm.title!,
         description: todoForm.description!,
         done: todoForm.done!);
-    widgetRef.read(todosProvider.notifier).updateTodo(todo.id.value, todo);
+    widgetRef.read(todosProvider.notifier).updateTodo(todo);
     todoForm.goRouterContextPopFunction();
   }
 

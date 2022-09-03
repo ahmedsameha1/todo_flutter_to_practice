@@ -103,13 +103,29 @@ main() {
 """, () {
     const title = "title";
     const description = "description";
-    Todo todo1 = createTodoInstance("${title}1", "${description}1", false);
-    Todo todo2 = createTodoInstance("${title}2", "${description}2", false);
-    Todo todo3 = createTodoInstance("${title}3", "${description}3", false);
-    Todo toUpdateFromTodo =
-        createTodoInstance("my title", "my description", true);
+    final todoId = const Uuid().v4();
+    Todo todo1 = Todo(
+        id: TodoIdString(const Uuid().v4()),
+        title: "${title}1",
+        description: "${description}1",
+        done: false);
+    Todo todo2 = Todo(
+        id: TodoIdString(todoId),
+        title: "${title}2",
+        description: "${description}2",
+        done: false);
+    Todo todo3 = Todo(
+        id: TodoIdString(const Uuid().v4()),
+        title: "${title}3",
+        description: "${description}3",
+        done: false);
+    Todo toUpdateFromTodo = Todo(
+        id: TodoIdString(todoId),
+        title: "my title",
+        description: "my description",
+        done: true);
     TodosNotifier todosNotifier = TodosNotifier([todo1, todo2, todo3]);
-    todosNotifier.updateTodo(todo2.id.value, toUpdateFromTodo);
+    todosNotifier.updateTodo(toUpdateFromTodo);
     expect(todosNotifier.state[0].done, false);
     expect(todosNotifier.state[1].done, true);
     expect(todosNotifier.state[2].done, false);
