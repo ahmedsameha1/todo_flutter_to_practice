@@ -11,17 +11,26 @@ abstract class RunAppFunction {
   void call(Widget widget);
 }
 
-@GenerateMocks([RunAppFunction])
+abstract class EnsureInitializedFunction {
+  WidgetsBinding call();
+}
+
+@GenerateMocks([RunAppFunction, EnsureInitializedFunction])
 main() {
   test("""
         $given working with AppRunner class
         $wheN Calling run()
+        $then EnsureInitialized should be called
         $then runApp should be called
 """, () {
+    TestWidgetsFlutterBinding.ensureInitialized();
     Widget widget = const Text("text");
     final runAppCall = MockRunAppFunction();
-    AppRunner appRunner = AppRunner(widget, runAppCall);
+    final ensureInitializedCall = MockEnsureInitializedFunction();
+    when(ensureInitializedCall()).thenReturn(WidgetsBinding.instance);
+    AppRunner appRunner = AppRunner(widget, runAppCall, ensureInitializedCall);
     appRunner.run();
+    verify(ensureInitializedCall()).called(1);
     verify(runAppCall(widget)).called(1);
   });
 }

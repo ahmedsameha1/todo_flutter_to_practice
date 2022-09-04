@@ -2,10 +2,10 @@
 // in todo_flutter_to_practice/test/app_runner_test.dart.
 // Do not manually edit this file.
 
-import 'package:flutter/cupertino.dart' as _i3;
+import 'package:flutter/cupertino.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
-import 'app_runner_test.dart' as _i2;
+import 'app_runner_test.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -17,16 +17,32 @@ import 'app_runner_test.dart' as _i2;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 
+class _FakeWidgetsBinding_0 extends _i1.Fake implements _i2.WidgetsBinding {}
+
 /// A class which mocks [RunAppFunction].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRunAppFunction extends _i1.Mock implements _i2.RunAppFunction {
+class MockRunAppFunction extends _i1.Mock implements _i3.RunAppFunction {
   MockRunAppFunction() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  void call(_i3.Widget? widget) =>
+  void call(_i2.Widget? widget) =>
       super.noSuchMethod(Invocation.method(#call, [widget]),
           returnValueForMissingStub: null);
+}
+
+/// A class which mocks [EnsureInitializedFunction].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockEnsureInitializedFunction extends _i1.Mock
+    implements _i3.EnsureInitializedFunction {
+  MockEnsureInitializedFunction() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.WidgetsBinding call() => (super.noSuchMethod(Invocation.method(#call, []),
+      returnValue: _FakeWidgetsBinding_0()) as _i2.WidgetsBinding);
 }
