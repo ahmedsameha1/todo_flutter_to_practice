@@ -2,10 +2,13 @@
 // in todo_flutter_to_practice/test/app_runner_test.dart.
 // Do not manually edit this file.
 
+import 'dart:async' as _i5;
+
+import 'package:firebase_core/firebase_core.dart' as _i3;
 import 'package:flutter/cupertino.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
-import 'app_runner_test.dart' as _i3;
+import 'app_runner_test.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -19,10 +22,14 @@ import 'app_runner_test.dart' as _i3;
 
 class _FakeWidgetsBinding_0 extends _i1.Fake implements _i2.WidgetsBinding {}
 
+class _FakeFirebaseApp_1 extends _i1.Fake implements _i3.FirebaseApp {}
+
+class _FakeFirebaseOptions_2 extends _i1.Fake implements _i3.FirebaseOptions {}
+
 /// A class which mocks [RunAppFunction].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRunAppFunction extends _i1.Mock implements _i3.RunAppFunction {
+class MockRunAppFunction extends _i1.Mock implements _i4.RunAppFunction {
   MockRunAppFunction() {
     _i1.throwOnMissingStub(this);
   }
@@ -37,7 +44,7 @@ class MockRunAppFunction extends _i1.Mock implements _i3.RunAppFunction {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockEnsureInitializedFunction extends _i1.Mock
-    implements _i3.EnsureInitializedFunction {
+    implements _i4.EnsureInitializedFunction {
   MockEnsureInitializedFunction() {
     _i1.throwOnMissingStub(this);
   }
@@ -45,4 +52,91 @@ class MockEnsureInitializedFunction extends _i1.Mock
   @override
   _i2.WidgetsBinding call() => (super.noSuchMethod(Invocation.method(#call, []),
       returnValue: _FakeWidgetsBinding_0()) as _i2.WidgetsBinding);
+}
+
+/// A class which mocks [FirebaseInitializeAppFunction].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFirebaseInitializeAppFunction extends _i1.Mock
+    implements _i4.FirebaseInitializeAppFunction {
+  MockFirebaseInitializeAppFunction() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.Future<_i3.FirebaseApp> call(
+          {String? name, _i3.FirebaseOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#call, [], {#name: name, #options: options}),
+              returnValue: Future<_i3.FirebaseApp>.value(_FakeFirebaseApp_1()))
+          as _i5.Future<_i3.FirebaseApp>);
+}
+
+/// A class which mocks [FirebaseOptions].
+///
+/// See the documentation for Mockito's code generation for more information.
+// ignore: must_be_immutable
+class MockFirebaseOptions extends _i1.Mock implements _i3.FirebaseOptions {
+  MockFirebaseOptions() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get apiKey =>
+      (super.noSuchMethod(Invocation.getter(#apiKey), returnValue: '')
+          as String);
+  @override
+  String get appId =>
+      (super.noSuchMethod(Invocation.getter(#appId), returnValue: '')
+          as String);
+  @override
+  String get messagingSenderId => (super
+          .noSuchMethod(Invocation.getter(#messagingSenderId), returnValue: '')
+      as String);
+  @override
+  String get projectId =>
+      (super.noSuchMethod(Invocation.getter(#projectId), returnValue: '')
+          as String);
+  @override
+  Map<String, String?> get asMap =>
+      (super.noSuchMethod(Invocation.getter(#asMap),
+          returnValue: <String, String?>{}) as Map<String, String?>);
+}
+
+/// A class which mocks [FirebaseApp].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFirebaseApp extends _i1.Mock implements _i3.FirebaseApp {
+  MockFirebaseApp() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get name =>
+      (super.noSuchMethod(Invocation.getter(#name), returnValue: '') as String);
+  @override
+  _i3.FirebaseOptions get options =>
+      (super.noSuchMethod(Invocation.getter(#options),
+          returnValue: _FakeFirebaseOptions_2()) as _i3.FirebaseOptions);
+  @override
+  bool get isAutomaticDataCollectionEnabled =>
+      (super.noSuchMethod(Invocation.getter(#isAutomaticDataCollectionEnabled),
+          returnValue: false) as bool);
+  @override
+  _i5.Future<void> delete() =>
+      (super.noSuchMethod(Invocation.method(#delete, []),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i5.Future<void>);
+  @override
+  _i5.Future<void> setAutomaticDataCollectionEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+          Invocation.method(#setAutomaticDataCollectionEnabled, [enabled]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i5.Future<void>);
+  @override
+  _i5.Future<void> setAutomaticResourceManagementEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+          Invocation.method(#setAutomaticResourceManagementEnabled, [enabled]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i5.Future<void>);
 }

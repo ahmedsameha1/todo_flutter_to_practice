@@ -1,8 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_flutter_to_practice/app_runner.dart';
 
-void main() {
-  AppRunner(const MyApp(), runApp).run();
+void main() async {
+  await (AppRunner(
+          const MyApp(),
+          runApp,
+          WidgetsFlutterBinding.ensureInitialized,
+          Firebase.initializeApp,
+          const FirebaseOptions(
+              apiKey: '', appId: '', messagingSenderId: '', projectId: ''))
+      .run());
 }
 
 class MyApp extends StatelessWidget {
