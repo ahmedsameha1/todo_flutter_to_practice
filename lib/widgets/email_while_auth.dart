@@ -7,11 +7,16 @@ class EmailWhileAuth extends StatelessWidget {
   static const String EMAIL = "Email";
   static const String NEXT = "Next";
   static const String CANCEL = "Cancel";
-  const EmailWhileAuth({Key? key}) : super(key: key);
+  static const String INVALID_EMAIL = "This an invalid email";
+  static final RegExp emailRegex =
+      RegExp(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b');
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  EmailWhileAuth({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           TextFormField(
@@ -19,10 +24,18 @@ class EmailWhileAuth extends StatelessWidget {
               label: Text(EMAIL),
             ),
             keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value == null || value.isEmpty || value.trim().isEmpty || !value.contains("@")) {
+                return INVALID_EMAIL;
+              }
+              return null;
+            },
           ),
           Row(children: [
             TextButton(
-              onPressed: null,
+              onPressed: () {
+                _formKey.currentState!.validate();
+              },
               child: Text(NEXT),
             ),
             TextButton(

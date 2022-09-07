@@ -5,7 +5,7 @@ import 'package:todo_flutter_to_practice/widgets/email_while_auth.dart';
 import 'skeleton_for_widget_testing.dart';
 
 void main() {
-  final widgetInSkeleton = createWidgetInASkeleton(const EmailWhileAuth());
+  final widgetInSkeleton = createWidgetInASkeleton(EmailWhileAuth());
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -22,12 +22,31 @@ void main() {
     expect(find.byType(TextButton), findsNWidgets(2));
     final TextButton nextButton = tester.widget(find.byType(TextButton).at(0));
     expect((nextButton.child as Text).data, EmailWhileAuth.NEXT);
-    final TextButton cancelButton = tester.widget(find.byType(TextButton).at(1));
+    final TextButton cancelButton =
+        tester.widget(find.byType(TextButton).at(1));
     expect((cancelButton.child as Text).data, EmailWhileAuth.CANCEL);
   });
 
   testWidgets("Test the TextFormField validation", (WidgetTester tester) async {
     // email should be valid using regex
+    await tester.pumpWidget(widgetInSkeleton);
+    final emailTextFormFieldFinder = find.byType(TextFormField);
+    await tester.enterText(emailTextFormFieldFinder, "test@test.com");
+    await tester.tap(find.byType(TextButton).at(0));
+    await tester.pumpAndSettle();
+    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsNothing);
+    await tester.enterText(emailTextFormFieldFinder, "");
+    await tester.tap(find.byType(TextButton).at(0));
+    await tester.pumpAndSettle();
+    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    await tester.enterText(emailTextFormFieldFinder, " ");
+    await tester.tap(find.byType(TextButton).at(0));
+    await tester.pumpAndSettle();
+    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    await tester.enterText(emailTextFormFieldFinder, "test");
+    await tester.tap(find.byType(TextButton).at(0));
+    await tester.pumpAndSettle();
+    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
   });
 
   testWidgets("Test that next Button call the next action function",
