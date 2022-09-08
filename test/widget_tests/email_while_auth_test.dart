@@ -1,11 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:todo_flutter_to_practice/widgets/email_while_auth.dart';
 
+import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
+abstract class VerifyEmailFunction {
+  Future<void> call(String email,
+      void Function(FirebaseAuthException exception) errorCallback);
+}
+
+@GenerateMocks([VerifyEmailFunction])
 void main() {
-  final widgetInSkeleton = createWidgetInASkeleton(EmailWhileAuth());
+  late MockVerifyEmailFunction verifyEmailFunctionCall;
+  late Widget widgetInSkeleton;
+  setUp(() {
+    verifyEmailFunctionCall = MockVerifyEmailFunction();
+    widgetInSkeleton =
+        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
+  });
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
@@ -47,10 +63,18 @@ void main() {
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
     expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    verify(verifyEmailFunctionCall(any, any)).called(1);
   });
 
   testWidgets("Test that next Button call the next action function",
-      (WidgetTester tester) async {});
+      (WidgetTester tester) async {
+    await tester.pumpWidget(widgetInSkeleton);
+    final emailTextFormFieldFinder = find.byType(TextFormField);
+    await tester.enterText(emailTextFormFieldFinder, "test@test.com");
+    await tester.tap(find.byType(TextButton).at(0));
+    await tester.pumpAndSettle();
+    verify(verifyEmailFunctionCall("test@test.com", any)).called(1);
+  });
 
   testWidgets("Test that cancel Button call the cancel action function",
       (WidgetTester tester) async {});
