@@ -35,3 +35,12 @@ class MockVerifyEmailFunction extends _i1.Mock
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i3.Future<void>);
 }
+
+/// A class which mocks [ToLogoutFunction].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockToLogoutFunction extends _i1.Mock implements _i2.ToLogoutFunction {
+  MockToLogoutFunction() {
+    _i1.throwOnMissingStub(this);
+  }
+}

@@ -19,7 +19,11 @@ abstract class VerifyEmailFunction {
       void Function(FirebaseAuthException exception) errorCallback);
 }
 
-@GenerateMocks([VerifyEmailFunction])
+abstract class ToLogoutFunction {
+  call();
+}
+
+@GenerateMocks([VerifyEmailFunction, ToLogoutFunction])
 void main() {
   final firebaseAuthException = FirebaseAuthException(code: "code");
   const User? nullUser = null;
@@ -29,12 +33,13 @@ void main() {
   late AuthStateNotifier authStateNotifier;
   final MockVerifyEmailFunction verifyEmailFunctionCall =
       MockVerifyEmailFunction();
+  final MockToLogoutFunction toLogoutFunctionCall = MockToLogoutFunction();
   late Widget widgetInSkeleton;
 
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
-    widgetInSkeleton =
-        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
+    widgetInSkeleton = createWidgetInASkeleton(
+        EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
     expect(find.byType(EmailWhileAuth), findsOneWidget);
     expect(find.byType(Form), findsOneWidget);
@@ -42,39 +47,39 @@ void main() {
     expect(find.byType(TextFormField), findsOneWidget);
     final TextField emailTextField =
         tester.widget(find.byType(TextField).at(0));
-    expect(
-        (emailTextField.decoration!.label as Text).data, EmailWhileAuth.EMAIL);
+    expect((emailTextField.decoration!.label as Text).data,
+        EmailWhileAuth.emailString);
     expect(emailTextField.keyboardType, TextInputType.emailAddress);
     expect(find.byType(Row), findsOneWidget);
     expect(find.byType(TextButton), findsNWidgets(2));
     final TextButton nextButton = tester.widget(find.byType(TextButton).at(0));
-    expect((nextButton.child as Text).data, EmailWhileAuth.NEXT);
+    expect((nextButton.child as Text).data, EmailWhileAuth.nextString);
     final TextButton cancelButton =
         tester.widget(find.byType(TextButton).at(1));
-    expect((cancelButton.child as Text).data, EmailWhileAuth.CANCEL);
+    expect((cancelButton.child as Text).data, EmailWhileAuth.cancelString);
   });
 
   testWidgets("Test the TextFormField validation", (WidgetTester tester) async {
-    widgetInSkeleton =
-        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
+    widgetInSkeleton = createWidgetInASkeleton(
+        EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
     final emailTextFormFieldFinder = find.byType(TextFormField);
     await tester.enterText(emailTextFormFieldFinder, "test@test.com");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsNothing);
+    expect(find.text(EmailWhileAuth.invalidEmailString), findsNothing);
     await tester.enterText(emailTextFormFieldFinder, "");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, " ");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, "test");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
     verify(verifyEmailFunctionCall(any, any)).called(1);
   });
 
@@ -88,7 +93,7 @@ void main() {
 
       authStateNotifier = AuthStateNotifier(firebaseAuth);
       widgetInSkeleton = createWidgetInASkeleton(
-          EmailWhileAuth(authStateNotifier.verifyEmail));
+          EmailWhileAuth(authStateNotifier.verifyEmail, toLogoutFunctionCall));
       widgetInSkeletonInProviderScope = ProviderScope(
           overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
           child: widgetInSkeleton);
@@ -106,7 +111,7 @@ void main() {
       await tester.tap(find.byType(TextButton).at(0));
       await tester.pumpAndSettle();
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+      expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
     });
     testWidgets(
         "Test that a SnackBar is NOT shown when NO FirebaseAuthException is thrown",
@@ -121,10 +126,17 @@ void main() {
       await tester.tap(find.byType(TextButton).at(0));
       await tester.pumpAndSettle();
       expect(find.byType(SnackBar), findsNothing);
-      expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsNothing);
+      expect(find.text(EmailWhileAuth.invalidEmailString), findsNothing);
     });
   });
 
   testWidgets("Test that cancel Button call the cancel action function",
-      (WidgetTester tester) async {});
+      (WidgetTester tester) async {
+    when(toLogoutFunctionCall()).thenReturn(anything);
+    widgetInSkeleton = createWidgetInASkeleton(
+        EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
+    await tester.pumpWidget(widgetInSkeleton);
+    await tester.tap(find.byType(TextButton).at(1));
+    verify(toLogoutFunctionCall()).called(1);
+  });
 }
