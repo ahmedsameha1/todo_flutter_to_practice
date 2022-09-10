@@ -48,7 +48,10 @@ class EmailWhileAuth extends StatelessWidget {
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  await nextAction(_email!, (exception) => "");
+                  await nextAction(
+                      _email!,
+                      (exception) => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text(INVALID_EMAIL))));
                 }
               },
               child: const Text(NEXT),

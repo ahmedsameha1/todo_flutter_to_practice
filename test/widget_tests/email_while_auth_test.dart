@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
+import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/widgets/email_while_auth.dart';
 
+import '../state/auth_state_notifier_test.mocks.dart';
 import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
@@ -15,15 +21,20 @@ abstract class VerifyEmailFunction {
 
 @GenerateMocks([VerifyEmailFunction])
 void main() {
-  late MockVerifyEmailFunction verifyEmailFunctionCall;
+  final firebaseAuthException = FirebaseAuthException(code: "code");
+  const User? nullUser = null;
+  late StreamController<User?> streamController;
+  late ProviderScope widgetInSkeletonInProviderScope;
+  late FirebaseAuth firebaseAuth;
+  late AuthStateNotifier authStateNotifier;
+  final MockVerifyEmailFunction verifyEmailFunctionCall =
+      MockVerifyEmailFunction();
   late Widget widgetInSkeleton;
-  setUp(() {
-    verifyEmailFunctionCall = MockVerifyEmailFunction();
-    widgetInSkeleton =
-        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
-  });
+
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
+    widgetInSkeleton =
+        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
     expect(find.byType(EmailWhileAuth), findsOneWidget);
     expect(find.byType(Form), findsOneWidget);
@@ -44,7 +55,8 @@ void main() {
   });
 
   testWidgets("Test the TextFormField validation", (WidgetTester tester) async {
-    // email should be valid using regex
+    widgetInSkeleton =
+        createWidgetInASkeleton(EmailWhileAuth(verifyEmailFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
     final emailTextFormFieldFinder = find.byType(TextFormField);
     await tester.enterText(emailTextFormFieldFinder, "test@test.com");
@@ -66,14 +78,51 @@ void main() {
     verify(verifyEmailFunctionCall(any, any)).called(1);
   });
 
-  testWidgets("Test that next Button call the next action function",
-      (WidgetTester tester) async {
-    await tester.pumpWidget(widgetInSkeleton);
-    final emailTextFormFieldFinder = find.byType(TextFormField);
-    await tester.enterText(emailTextFormFieldFinder, "test@test.com");
-    await tester.tap(find.byType(TextButton).at(0));
-    await tester.pumpAndSettle();
-    verify(verifyEmailFunctionCall("test@test.com", any)).called(1);
+  group("next button action", () {
+    setUp(() {
+      firebaseAuth = MockFirebaseAuth();
+      streamController = StreamController();
+      when(firebaseAuth.userChanges())
+          .thenAnswer((_) => streamController.stream);
+      streamController.sink.add(nullUser);
+
+      authStateNotifier = AuthStateNotifier(firebaseAuth);
+      widgetInSkeleton = createWidgetInASkeleton(
+          EmailWhileAuth(authStateNotifier.verifyEmail));
+      widgetInSkeletonInProviderScope = ProviderScope(
+          overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
+          child: widgetInSkeleton);
+    });
+    testWidgets(
+        "Test that a SnackBar is shown when FirebaseAuthException is thrown",
+        (WidgetTester tester) async {
+      const invalidEmail = "test@test.com";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
+          .thenThrow(firebaseAuthException);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      final emailTextFormFieldFinder = find.byType(TextFormField);
+      await tester.enterText(emailTextFormFieldFinder, invalidEmail);
+      await tester.tap(find.byType(TextButton).at(0));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsOneWidget);
+    });
+    testWidgets(
+        "Test that a SnackBar is NOT shown when NO FirebaseAuthException is thrown",
+        (WidgetTester tester) async {
+      const invalidEmail = "test@test.com";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
+          .thenAnswer((realInvocation) => Future.value(<String>["password"]));
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      final emailTextFormFieldFinder = find.byType(TextFormField);
+      await tester.enterText(emailTextFormFieldFinder, invalidEmail);
+      await tester.tap(find.byType(TextButton).at(0));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text(EmailWhileAuth.INVALID_EMAIL), findsNothing);
+    });
   });
 
   testWidgets("Test that cancel Button call the cancel action function",
