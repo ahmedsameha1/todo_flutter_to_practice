@@ -41,21 +41,33 @@ void main() {
     widgetInSkeleton = createWidgetInASkeleton(
         EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
-    expect(find.byType(EmailWhileAuth), findsOneWidget);
-    expect(find.byType(Form), findsOneWidget);
-    expect(find.byType(Column), findsOneWidget);
-    expect(find.byType(TextFormField), findsOneWidget);
-    final TextField emailTextField =
-        tester.widget(find.byType(TextField).at(0));
+    final emailWhileAuthFinder = find.byType(EmailWhileAuth);
+    expect(emailWhileAuthFinder, findsOneWidget);
+    final formFinder = find.byType(Form);
+    expect(find.descendant(of: emailWhileAuthFinder, matching: formFinder),
+        findsOneWidget);
+    final columnFinder = find.byType(Column);
+    expect(find.descendant(of: formFinder, matching: columnFinder),
+        findsOneWidget);
+    final emailTextFormFieldFinder = find.byType(TextFormField);
+    expect(
+        find.descendant(of: columnFinder, matching: emailTextFormFieldFinder),
+        findsOneWidget);
+    final TextField emailTextField = tester.widget(find.descendant(
+        of: emailTextFormFieldFinder, matching: find.byType(TextField)));
     expect((emailTextField.decoration!.label as Text).data,
         EmailWhileAuth.emailString);
     expect(emailTextField.keyboardType, TextInputType.emailAddress);
-    expect(find.byType(Row), findsOneWidget);
-    expect(find.byType(TextButton), findsNWidgets(2));
-    final TextButton nextButton = tester.widget(find.byType(TextButton).at(0));
+    final rowFinder =
+        find.descendant(of: columnFinder, matching: find.byType(Row));
+    expect(rowFinder, findsOneWidget);
+    final TextButton nextButton = tester.widget(find
+        .descendant(of: rowFinder, matching: find.byType(TextButton))
+        .at(0));
     expect((nextButton.child as Text).data, EmailWhileAuth.nextString);
-    final TextButton cancelButton =
-        tester.widget(find.byType(TextButton).at(1));
+    final TextButton cancelButton = tester.widget(find
+        .descendant(of: rowFinder, matching: find.byType(TextButton))
+        .at(1));
     expect((cancelButton.child as Text).data, EmailWhileAuth.cancelString);
   });
 
@@ -63,7 +75,7 @@ void main() {
     widgetInSkeleton = createWidgetInASkeleton(
         EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
-    final emailTextFormFieldFinder = find.byType(TextFormField);
+    final emailTextFormFieldFinder = find.byType(TextFormField).at(0);
     await tester.enterText(emailTextFormFieldFinder, "test@test.com");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
@@ -71,15 +83,18 @@ void main() {
     await tester.enterText(emailTextFormFieldFinder, "");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
+    final validationErrorTextFinder = find.descendant(
+        of: emailTextFormFieldFinder,
+        matching: find.text(EmailWhileAuth.invalidEmailString));
+    expect(validationErrorTextFinder, findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, " ");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
+    expect(validationErrorTextFinder, findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, "test");
     await tester.tap(find.byType(TextButton).at(0));
     await tester.pumpAndSettle();
-    expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
+    expect(validationErrorTextFinder, findsOneWidget);
     verify(verifyEmailFunctionCall(any, any)).called(1);
   });
 
@@ -90,7 +105,6 @@ void main() {
       when(firebaseAuth.userChanges())
           .thenAnswer((_) => streamController.stream);
       streamController.sink.add(nullUser);
-
       authStateNotifier = AuthStateNotifier(firebaseAuth);
       widgetInSkeleton = createWidgetInASkeleton(
           EmailWhileAuth(authStateNotifier.verifyEmail, toLogoutFunctionCall));
