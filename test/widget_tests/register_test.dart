@@ -61,7 +61,6 @@ void main() {
     expect(confirmPasswordTextField.keyboardType, TextInputType.text);
     expect(confirmPasswordTextField.obscureText, true);
     expect(confirmPasswordTextField.autocorrect, false);
-    expect(confirmPasswordTextField.readOnly, true);
     expect(confirmPasswordTextField.enableSuggestions, false);
     final rowFinder = find.byType(Row);
     expect(
@@ -102,6 +101,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(nameValidationErrorTextFinder, findsOneWidget);
     });
+
     testWidgets("password textfield validation", (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeleton);
       final passwordTextFieldFinder = find.byType(TextField).at(1);
@@ -125,6 +125,32 @@ void main() {
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       expect(passwordValidationErrorTextFinder, findsOneWidget);
+    });
+
+    testWidgets("confirm password textfield validation",
+        (WidgetTester tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final passwordTextFieldFinder = find.byType(TextField).at(1);
+      final confirmPasswordTextFieldFinder = find.byType(TextField).at(2);
+      await tester.enterText(passwordTextFieldFinder, "8*prt&3k");
+      await tester.enterText(confirmPasswordTextFieldFinder, "8*prt&3k");
+      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      final confirmPasswordValidationErrorTextFinder = find.descendant(
+          of: find.byType(TextFormField).at(2),
+          matching: find.text(Register.confirmPasswordValidationErrorString));
+      expect(confirmPasswordValidationErrorTextFinder, findsNothing);
+      await tester.enterText(passwordTextFieldFinder, "");
+      await tester.enterText(confirmPasswordTextFieldFinder, "");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(confirmPasswordValidationErrorTextFinder, findsNothing);
+      await tester.enterText(passwordTextFieldFinder, "hbefr");
+      await tester.enterText(confirmPasswordTextFieldFinder, "rhg");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(confirmPasswordValidationErrorTextFinder, findsOneWidget);
     });
   });
 }

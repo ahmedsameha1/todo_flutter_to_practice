@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class Register extends StatelessWidget {
+class Register extends HookWidget {
   static const nameString = "Name";
   static const passwordString = "Password";
   static const confirmPasswordString = "Confirm Password";
@@ -10,12 +11,16 @@ class Register extends StatelessWidget {
   static const passwordMinimumLength = 8;
   static const passwordValidationErrorString =
       "Password needs to be at least $passwordMinimumLength characters";
+  static const confirmPasswordValidationErrorString =
+      "This doesn't match the above password";
   final String _email;
   final GlobalKey<FormState> _formKey = GlobalKey();
   Register(this._email, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController passwordTextEditingController =
+        useTextEditingController();
     return Form(
       key: _formKey,
       child: Column(
@@ -32,6 +37,7 @@ class Register extends StatelessWidget {
             },
           ),
           TextFormField(
+            controller: passwordTextEditingController,
             decoration: const InputDecoration(label: Text(passwordString)),
             keyboardType: TextInputType.text,
             obscureText: true,
@@ -51,8 +57,14 @@ class Register extends StatelessWidget {
             keyboardType: TextInputType.text,
             obscureText: true,
             autocorrect: false,
-            readOnly: true,
             enableSuggestions: false,
+            validator: (value) {
+              if (value == null ||
+                  value != passwordTextEditingController.text) {
+                return confirmPasswordValidationErrorString;
+              }
+              return null;
+            },
           ),
           Row(
             children: [
