@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 import 'skeleton_for_widget_testing.dart';
 
 void main() {
+  const email = "test@test.com";
+  late Widget widgetInSkeleton;
+  setUp(() {
+    widgetInSkeleton = createWidgetInASkeleton(Register(email));
+  });
   testWidgets("Test the precence of the main widgets",
       (WidgetTester tester) async {
-    const email = "test@test.com";
-    await tester.pumpWidget(createWidgetInASkeleton(const Register(email)));
+    await tester.pumpWidget(widgetInSkeleton);
     expect(find.byType(Register), findsOneWidget);
     expect(
         find.descendant(of: find.byType(Register), matching: find.byType(Form)),
@@ -43,7 +47,6 @@ void main() {
     expect(passwordTextField.keyboardType, TextInputType.text);
     expect(passwordTextField.obscureText, true);
     expect(passwordTextField.autocorrect, false);
-    expect(passwordTextField.readOnly, true);
     expect(passwordTextField.enableSuggestions, false);
     final confirmPasswordTextFormFieldFinder = find.byType(TextFormField).at(2);
     expect(
@@ -77,5 +80,51 @@ void main() {
         ((tester.widget(cancelTextButtonFinder) as TextButton).child as Text)
             .data,
         Register.cancelString);
+  });
+  group("Form validation", () {
+    testWidgets("name textfield validation", (WidgetTester tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final nameTextFieldFinder = find.byType(TextField).at(0);
+      await tester.enterText(nameTextFieldFinder, "f");
+      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      final nameValidationErrorTextFinder = find.descendant(
+          of: find.byType(TextFormField).at(0),
+          matching: find.text(Register.nameValidationErrorString));
+      expect(nameValidationErrorTextFinder, findsNothing);
+      await tester.enterText(nameTextFieldFinder, "");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(nameValidationErrorTextFinder, findsOneWidget);
+      await tester.enterText(nameTextFieldFinder, " ");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(nameValidationErrorTextFinder, findsOneWidget);
+    });
+    testWidgets("password textfield validation", (WidgetTester tester) async {
+      await tester.pumpWidget(widgetInSkeleton);
+      final passwordTextFieldFinder = find.byType(TextField).at(1);
+      await tester.enterText(passwordTextFieldFinder, "8*prt&3k");
+      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      final passwordValidationErrorTextFinder = find.descendant(
+          of: find.byType(TextFormField).at(1),
+          matching: find.text(Register.passwordValidationErrorString));
+      expect(passwordValidationErrorTextFinder, findsNothing);
+      await tester.enterText(passwordTextFieldFinder, "");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(passwordValidationErrorTextFinder, findsOneWidget);
+      await tester.enterText(passwordTextFieldFinder, " ");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(passwordValidationErrorTextFinder, findsOneWidget);
+      await tester.enterText(passwordTextFieldFinder, " gfh");
+      await tester.tap(nextTextButtonFinder);
+      await tester.pumpAndSettle();
+      expect(passwordValidationErrorTextFinder, findsOneWidget);
+    });
   });
 }
