@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Register extends HookWidget {
@@ -13,6 +14,8 @@ class Register extends HookWidget {
       "Password needs to be at least $passwordMinimumLength characters";
   static const confirmPasswordValidationErrorString =
       "This doesn't match the above password";
+  static final FilteringTextInputFormatter noWhiteSpaceInputFormatter =
+      FilteringTextInputFormatter.deny(RegExp(r'\s'));
   final String _email;
   final GlobalKey<FormState> _formKey = GlobalKey();
   Register(this._email, {Key? key}) : super(key: key);
@@ -38,6 +41,7 @@ class Register extends HookWidget {
           ),
           TextFormField(
             controller: passwordTextEditingController,
+            inputFormatters: [noWhiteSpaceInputFormatter],
             decoration: const InputDecoration(label: Text(passwordString)),
             keyboardType: TextInputType.text,
             obscureText: true,
@@ -52,6 +56,7 @@ class Register extends HookWidget {
             },
           ),
           TextFormField(
+            inputFormatters: [noWhiteSpaceInputFormatter],
             decoration:
                 const InputDecoration(label: Text(confirmPasswordString)),
             keyboardType: TextInputType.text,

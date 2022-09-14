@@ -45,6 +45,8 @@ void main() {
     expect((passwordTextField.decoration!.label as Text).data,
         Register.passwordString);
     expect(passwordTextField.keyboardType, TextInputType.text);
+    expect(passwordTextField.inputFormatters!.elementAt(0),
+        Register.noWhiteSpaceInputFormatter);
     expect(passwordTextField.obscureText, true);
     expect(passwordTextField.autocorrect, false);
     expect(passwordTextField.enableSuggestions, false);
@@ -59,6 +61,8 @@ void main() {
     expect((confirmPasswordTextField.decoration!.label as Text).data,
         Register.confirmPasswordString);
     expect(confirmPasswordTextField.keyboardType, TextInputType.text);
+    expect(confirmPasswordTextField.inputFormatters!.elementAt(0),
+        Register.noWhiteSpaceInputFormatter);
     expect(confirmPasswordTextField.obscureText, true);
     expect(confirmPasswordTextField.autocorrect, false);
     expect(confirmPasswordTextField.enableSuggestions, false);
@@ -80,6 +84,7 @@ void main() {
             .data,
         Register.cancelString);
   });
+
   group("Form validation", () {
     testWidgets("name textfield validation", (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeleton);
@@ -120,10 +125,14 @@ void main() {
       await tester.enterText(passwordTextFieldFinder, " ");
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
+      final TextField passwordTextField =
+          tester.widget(passwordTextFieldFinder);
+      expect(passwordTextField.controller!.text, "");
       expect(passwordValidationErrorTextFinder, findsOneWidget);
       await tester.enterText(passwordTextFieldFinder, " gfh");
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
+      expect(passwordTextField.controller!.text, "gfh");
       expect(passwordValidationErrorTextFinder, findsOneWidget);
     });
 
@@ -147,10 +156,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(confirmPasswordValidationErrorTextFinder, findsNothing);
       await tester.enterText(passwordTextFieldFinder, "hbefr");
-      await tester.enterText(confirmPasswordTextFieldFinder, "rhg");
+      await tester.enterText(confirmPasswordTextFieldFinder, "r hg");
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       expect(confirmPasswordValidationErrorTextFinder, findsOneWidget);
+      expect(
+          (tester.widget(confirmPasswordTextFieldFinder) as TextField)
+              .controller!
+              .text,
+          "rhg");
     });
   });
 }
