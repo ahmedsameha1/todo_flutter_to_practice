@@ -228,5 +228,32 @@ void main() {
                   .text("${Register.failedString}$firebaseAuthExceptionCode")),
           findsOneWidget);
     });
+    testWidgets(
+        "Test that a SnackBar is shown to guide user to check his email",
+        (WidgetTester tester) async {
+      const password = "oehgolewrbgowerb";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(email))
+          .thenAnswer((realInvocation) => Future.value(<String>[]));
+      authStateNotifier.verifyEmail(email, (exception) {});
+      when(notNullUser.updateDisplayName(userDisplayName))
+          .thenAnswer((realInvocation) => Completer<void>().future);
+      when(userCredential.user).thenReturn(notNullUser);
+      when(firebaseAuth.createUserWithEmailAndPassword(
+              email: email, password: password))
+          .thenAnswer((realInvocation) => Future.value(userCredential));
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      await tester.enterText(find.byType(TextField).at(0), userDisplayName);
+      await tester.enterText(find.byType(TextField).at(1), password);
+      await tester.enterText(find.byType(TextField).at(2), password);
+      await tester.tap(find.byType(TextButton).at(0));
+      await tester.pumpAndSettle();
+      final snackBarFinder = find.byType(SnackBar);
+      expect(snackBarFinder, findsOneWidget);
+      expect(
+          find.descendant(
+              of: snackBarFinder, matching: find.text(Register.successString)),
+          findsOneWidget);
+    });
   });
 }

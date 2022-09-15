@@ -10,7 +10,9 @@ class Register extends HookWidget {
   static const nextString = "Next";
   static const cancelString = "Cancel";
   static const nameValidationErrorString = "Enter a name";
-  static const failedString = "Failed: ";
+  static const failedString = "Failure: ";
+  static const successString =
+      "Success: Check your email to verify your email address";
   static const passwordMinimumLength = 8;
   static const passwordValidationErrorString =
       "Password needs to be at least $passwordMinimumLength characters";
@@ -81,16 +83,19 @@ class Register extends HookWidget {
           Row(
             children: [
               TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      nextAction(
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      await nextAction(
                           _email,
                           passwordTextEditingController.text,
                           nameTextEditingController.text,
-                          ((exception) => ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(
-                                  content:
-                                      Text("$failedString${exception.code}")))));
+                          ((exception) => scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      "$failedString${exception.code}")))));
+                      scaffoldMessenger.showSnackBar(
+                          const SnackBar(content: Text(successString)));
                     }
                   },
                   child: const Text(nextString)),
