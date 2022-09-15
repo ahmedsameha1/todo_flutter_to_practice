@@ -188,6 +188,9 @@ main() {
     when(firebaseAuth.currentUser).thenReturn(notNullUser);
     sut.sendEmailToVerifyEmailAddress();
     verify(notNullUser.sendEmailVerification()).called(1);
+    pushPreparedUserToUserChangesStream(nullUser);
+    verify(await firebaseAuth.signOut()).called(1);
+    expect(sut.state.applicationLoginState, ApplicationLoginState.loggedOut);
   });
 
   test("""
@@ -235,7 +238,8 @@ main() {
         $then firebaseAuth.createUserWithEmailAndPassword() should be called once
           $and User.updateDisplayName() has been called
           $and User.sendEmailVerification() has been called
-          $and Calling state.applicationLoginState should return ApplicationLoginState.locked
+          $and firebaseAuth.signOut() has been called
+          $and Calling state.applicationLoginState should return ApplicationLoginState.loggedOut
 """, () async {
     await fromLoggedOutToEmailAddressToRegister();
     when(notNullUser.updateDisplayName(displayName))
@@ -252,7 +256,9 @@ main() {
         .called(1);
     verify(notNullUser.updateDisplayName(displayName)).called(1);
     verify(notNullUser.sendEmailVerification()).called(1);
-    expect(sut.state.applicationLoginState, ApplicationLoginState.locked);
+    pushPreparedUserToUserChangesStream(nullUser);
+    verify(await firebaseAuth.signOut()).called(1);
+    expect(sut.state.applicationLoginState, ApplicationLoginState.loggedOut);
   });
 
   test("""

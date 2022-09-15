@@ -95,6 +95,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
           email: email, password: password);
       userCredential.user!.updateDisplayName(displayName);
       userCredential.user!.sendEmailVerification();
+      await firebaseAuth.signOut();
     } on FirebaseAuthException catch (exception) {
       errorCallback(exception);
     }
@@ -108,8 +109,9 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     await firebaseAuth.signOut();
   }
 
-  void sendEmailToVerifyEmailAddress() {
+  void sendEmailToVerifyEmailAddress() async {
     firebaseAuth.currentUser!.sendEmailVerification();
+    await firebaseAuth.signOut();
   }
 
   void toLoggedOut() {
