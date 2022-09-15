@@ -1,14 +1,39 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
+import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:flutter/material.dart';
 
+import '../state/auth_state_notifier_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
 void main() {
   const email = "test@test.com";
   late Widget widgetInSkeleton;
+  const firebaseAuthExceptionCode = "code";
+  final firebaseAuthException =
+      FirebaseAuthException(code: firebaseAuthExceptionCode);
+  const User? nullUser = null;
+  final User notNullUser = MockUser();
+  late StreamController<User?> streamController;
+  late ProviderScope widgetInSkeletonInProviderScope;
+  late FirebaseAuth firebaseAuth;
+  late AuthStateNotifier authStateNotifier;
+  late UserCredential userCredential;
   setUp(() {
-    widgetInSkeleton = createWidgetInASkeleton(Register(email));
+    firebaseAuth = MockFirebaseAuth();
+    streamController = StreamController();
+    userCredential = MockUserCredential();
+    when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
+    streamController.sink.add(nullUser);
+    authStateNotifier = AuthStateNotifier(firebaseAuth);
+    widgetInSkeleton = createWidgetInASkeleton(
+        Register(email, authStateNotifier.registerAccount));
   });
   testWidgets("Test the precence of the main widgets",
       (WidgetTester tester) async {
@@ -165,6 +190,43 @@ void main() {
               .controller!
               .text,
           "rhg");
+    });
+  });
+  group("nextButton action", () {
+    const userDisplayName = "name";
+    setUp(() {
+      widgetInSkeletonInProviderScope = ProviderScope(
+          overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
+          child: widgetInSkeleton);
+    });
+    testWidgets(
+        "Test that a SnackBar is shown when FirebaseAuthException is thrown",
+        (WidgetTester tester) async {
+      const password = "oehgolewrbgowerb";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(email))
+          .thenAnswer((realInvocation) => Future.value(<String>[]));
+      authStateNotifier.verifyEmail(email, (exception) {});
+      when(notNullUser.updateDisplayName(userDisplayName))
+          .thenAnswer((realInvocation) => Completer<void>().future);
+      when(userCredential.user).thenReturn(notNullUser);
+      when(firebaseAuth.createUserWithEmailAndPassword(
+              email: email, password: password))
+          .thenThrow(firebaseAuthException);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      await tester.enterText(find.byType(TextField).at(0), userDisplayName);
+      await tester.enterText(find.byType(TextField).at(1), password);
+      await tester.enterText(find.byType(TextField).at(2), password);
+      await tester.tap(find.byType(TextButton).at(0));
+      await tester.pumpAndSettle();
+      final snackBarFinder = find.byType(SnackBar);
+      expect(snackBarFinder, findsOneWidget);
+      expect(
+          find.descendant(
+              of: snackBarFinder,
+              matching: find
+                  .text("${Register.failedString}$firebaseAuthExceptionCode")),
+          findsOneWidget);
     });
   });
 }

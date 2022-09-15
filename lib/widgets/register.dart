@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -9,6 +10,7 @@ class Register extends HookWidget {
   static const nextString = "Next";
   static const cancelString = "Cancel";
   static const nameValidationErrorString = "Enter a name";
+  static const failedString = "Failed: ";
   static const passwordMinimumLength = 8;
   static const passwordValidationErrorString =
       "Password needs to be at least $passwordMinimumLength characters";
@@ -18,11 +20,15 @@ class Register extends HookWidget {
       FilteringTextInputFormatter.deny(RegExp(r'\s'));
   final String _email;
   final GlobalKey<FormState> _formKey = GlobalKey();
-  Register(this._email, {Key? key}) : super(key: key);
+  final Future<void> Function(String email, String password, String displayName,
+      void Function(FirebaseAuthException exception) errorCallback) nextAction;
+  Register(this._email, this.nextAction, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final TextEditingController passwordTextEditingController =
+        useTextEditingController();
+    final TextEditingController nameTextEditingController =
         useTextEditingController();
     return Form(
       key: _formKey,
@@ -30,6 +36,7 @@ class Register extends HookWidget {
         children: [
           Text(_email),
           TextFormField(
+            controller: nameTextEditingController,
             decoration: const InputDecoration(label: Text(nameString)),
             keyboardType: TextInputType.text,
             validator: (value) {
@@ -75,7 +82,16 @@ class Register extends HookWidget {
             children: [
               TextButton(
                   onPressed: () {
-                    _formKey.currentState!.validate();
+                    if (_formKey.currentState!.validate()) {
+                      nextAction(
+                          _email,
+                          passwordTextEditingController.text,
+                          nameTextEditingController.text,
+                          ((exception) => ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(
+                                  content:
+                                      Text("$failedString${exception.code}")))));
+                    }
                   },
                   child: const Text(nextString)),
               TextButton(
