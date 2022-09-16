@@ -10,6 +10,7 @@ import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:flutter/material.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
+import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
 void main() {
@@ -25,6 +26,7 @@ void main() {
   late FirebaseAuth firebaseAuth;
   late AuthStateNotifier authStateNotifier;
   late UserCredential userCredential;
+  final toLogoutFunctionCall = MockToLogoutFunction();
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
     streamController = StreamController();
@@ -32,8 +34,8 @@ void main() {
     when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
     streamController.sink.add(nullUser);
     authStateNotifier = AuthStateNotifier(firebaseAuth);
-    widgetInSkeleton = createWidgetInASkeleton(
-        Register(email, authStateNotifier.registerAccount));
+    widgetInSkeleton = createWidgetInASkeleton(Register(
+        email, authStateNotifier.registerAccount, toLogoutFunctionCall));
   });
   testWidgets("Test the precence of the main widgets",
       (WidgetTester tester) async {
@@ -255,5 +257,12 @@ void main() {
               of: snackBarFinder, matching: find.text(Register.successString)),
           findsOneWidget);
     });
+  });
+  testWidgets("Test that cancelButton call the cancel action function",
+      (WidgetTester tester) async {
+    when(toLogoutFunctionCall()).thenReturn(anything);
+    await tester.pumpWidget(widgetInSkeleton);
+    await tester.tap(find.byType(TextButton).at(1));
+    verify(toLogoutFunctionCall()).called(1);
   });
 }

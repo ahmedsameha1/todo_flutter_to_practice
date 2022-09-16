@@ -24,7 +24,9 @@ class Register extends HookWidget {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final Future<void> Function(String email, String password, String displayName,
       void Function(FirebaseAuthException exception) errorCallback) nextAction;
-  Register(this._email, this.nextAction, {Key? key}) : super(key: key);
+  final void Function() cancelAction;
+  Register(this._email, this.nextAction, this.cancelAction, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +102,9 @@ class Register extends HookWidget {
                   },
                   child: const Text(nextString)),
               TextButton(
-                onPressed: null,
+                onPressed: () {
+                  cancelAction();
+                },
                 child: const Text(cancelString),
               )
             ],
