@@ -10,6 +10,7 @@ import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:flutter/material.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
+import 'common_finders.dart';
 import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
@@ -41,34 +42,32 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(widgetInSkeleton);
     expect(find.byType(Register), findsOneWidget);
-    expect(
-        find.descendant(of: find.byType(Register), matching: find.byType(Form)),
+    expect(find.descendant(of: find.byType(Register), matching: formFinder),
         findsOneWidget);
-    final columnFinder = find.byType(Column);
-    expect(find.descendant(of: find.byType(Form), matching: columnFinder),
+    expect(find.descendant(of: formFinder, matching: columnFinder),
         findsOneWidget);
     final emailTextFinder = find.byType(Text).at(0);
     expect(find.descendant(of: columnFinder, matching: emailTextFinder),
         findsOneWidget);
     expect((tester.widget(emailTextFinder) as Text).data, email);
-    final displayNameTextFormFieldFinder = find.byType(TextFormField).at(0);
+    final displayNameTextFormFieldFinder = textFormFieldFinder.at(0);
     expect(
         find.descendant(
             of: columnFinder, matching: displayNameTextFormFieldFinder),
         findsOneWidget);
     final TextField nameTextField = tester.widget(find.descendant(
         of: displayNameTextFormFieldFinder,
-        matching: find.byType(TextField).at(0))) as TextField;
+        matching: textFieldFinder.at(0))) as TextField;
     expect((nameTextField.decoration!.label as Text).data, Register.nameString);
     expect(nameTextField.keyboardType, TextInputType.text);
-    final passwordTextFormFieldFinder = find.byType(TextFormField).at(1);
+    final passwordTextFormFieldFinder = textFormFieldFinder.at(1);
     expect(
         find.descendant(
             of: columnFinder, matching: passwordTextFormFieldFinder),
         findsOneWidget);
     final TextField passwordTextField = tester.widget(find.descendant(
         of: passwordTextFormFieldFinder,
-        matching: find.byType(TextField).at(1))) as TextField;
+        matching: textFieldFinder.at(1))) as TextField;
     expect((passwordTextField.decoration!.label as Text).data,
         Register.passwordString);
     expect(passwordTextField.keyboardType, TextInputType.text);
@@ -77,14 +76,14 @@ void main() {
     expect(passwordTextField.obscureText, true);
     expect(passwordTextField.autocorrect, false);
     expect(passwordTextField.enableSuggestions, false);
-    final confirmPasswordTextFormFieldFinder = find.byType(TextFormField).at(2);
+    final confirmPasswordTextFormFieldFinder = textFormFieldFinder.at(2);
     expect(
         find.descendant(
             of: columnFinder, matching: confirmPasswordTextFormFieldFinder),
         findsOneWidget);
     final confirmPasswordTextField = tester.widget(find.descendant(
         of: confirmPasswordTextFormFieldFinder,
-        matching: find.byType(TextField).at(2))) as TextField;
+        matching: textFieldFinder.at(2))) as TextField;
     expect((confirmPasswordTextField.decoration!.label as Text).data,
         Register.confirmPasswordString);
     expect(confirmPasswordTextField.keyboardType, TextInputType.text);
@@ -93,18 +92,17 @@ void main() {
     expect(confirmPasswordTextField.obscureText, true);
     expect(confirmPasswordTextField.autocorrect, false);
     expect(confirmPasswordTextField.enableSuggestions, false);
-    final rowFinder = find.byType(Row);
     expect(
         find.descendant(of: columnFinder, matching: rowFinder), findsOneWidget);
     final nextTextButtonFinder =
-        find.descendant(of: rowFinder, matching: find.byType(TextButton).at(0));
+        find.descendant(of: rowFinder, matching: textButtonFinder.at(0));
     expect(nextTextButtonFinder, findsOneWidget);
     expect(
         ((tester.widget(nextTextButtonFinder) as TextButton).child as Text)
             .data,
         Register.nextString);
     final cancelTextButtonFinder =
-        find.descendant(of: rowFinder, matching: find.byType(TextButton).at(1));
+        find.descendant(of: rowFinder, matching: textButtonFinder.at(1));
     expect(cancelTextButtonFinder, findsOneWidget);
     expect(
         ((tester.widget(cancelTextButtonFinder) as TextButton).child as Text)
@@ -115,13 +113,13 @@ void main() {
   group("Form validation", () {
     testWidgets("name textfield validation", (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeleton);
-      final nameTextFieldFinder = find.byType(TextField).at(0);
+      final nameTextFieldFinder = textFieldFinder.at(0);
       await tester.enterText(nameTextFieldFinder, "f");
-      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      final nextTextButtonFinder = textButtonFinder.at(0);
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       final nameValidationErrorTextFinder = find.descendant(
-          of: find.byType(TextFormField).at(0),
+          of: textFormFieldFinder.at(0),
           matching: find.text(Register.nameValidationErrorString));
       expect(nameValidationErrorTextFinder, findsNothing);
       await tester.enterText(nameTextFieldFinder, "");
@@ -136,13 +134,13 @@ void main() {
 
     testWidgets("password textfield validation", (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeleton);
-      final passwordTextFieldFinder = find.byType(TextField).at(1);
+      final passwordTextFieldFinder = textFieldFinder.at(1);
       await tester.enterText(passwordTextFieldFinder, "8*prt&3k");
-      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      final nextTextButtonFinder = textButtonFinder.at(0);
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       final passwordValidationErrorTextFinder = find.descendant(
-          of: find.byType(TextFormField).at(1),
+          of: textFormFieldFinder.at(1),
           matching: find.text(Register.passwordValidationErrorString));
       expect(passwordValidationErrorTextFinder, findsNothing);
       await tester.enterText(passwordTextFieldFinder, "");
@@ -166,15 +164,15 @@ void main() {
     testWidgets("confirm password textfield validation",
         (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeleton);
-      final passwordTextFieldFinder = find.byType(TextField).at(1);
-      final confirmPasswordTextFieldFinder = find.byType(TextField).at(2);
+      final passwordTextFieldFinder = textFieldFinder.at(1);
+      final confirmPasswordTextFieldFinder = textFieldFinder.at(2);
       await tester.enterText(passwordTextFieldFinder, "8*prt&3k");
       await tester.enterText(confirmPasswordTextFieldFinder, "8*prt&3k");
-      final nextTextButtonFinder = find.byType(TextButton).at(0);
+      final nextTextButtonFinder = textButtonFinder.at(0);
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       final confirmPasswordValidationErrorTextFinder = find.descendant(
-          of: find.byType(TextFormField).at(2),
+          of: textFormFieldFinder.at(2),
           matching: find.text(Register.confirmPasswordValidationErrorString));
       expect(confirmPasswordValidationErrorTextFinder, findsNothing);
       await tester.enterText(passwordTextFieldFinder, "");
@@ -216,12 +214,11 @@ void main() {
               email: email, password: password))
           .thenThrow(firebaseAuthException);
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(find.byType(TextField).at(0), userDisplayName);
-      await tester.enterText(find.byType(TextField).at(1), password);
-      await tester.enterText(find.byType(TextField).at(2), password);
-      await tester.tap(find.byType(TextButton).at(0));
+      await tester.enterText(textFieldFinder.at(0), userDisplayName);
+      await tester.enterText(textFieldFinder.at(1), password);
+      await tester.enterText(textFieldFinder.at(2), password);
+      await tester.tap(textButtonFinder.at(0));
       await tester.pumpAndSettle();
-      final snackBarFinder = find.byType(SnackBar);
       expect(snackBarFinder, findsOneWidget);
       expect(
           find.descendant(
@@ -245,12 +242,11 @@ void main() {
               email: email, password: password))
           .thenAnswer((realInvocation) => Future.value(userCredential));
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(find.byType(TextField).at(0), userDisplayName);
-      await tester.enterText(find.byType(TextField).at(1), password);
-      await tester.enterText(find.byType(TextField).at(2), password);
-      await tester.tap(find.byType(TextButton).at(0));
+      await tester.enterText(textFieldFinder.at(0), userDisplayName);
+      await tester.enterText(textFieldFinder.at(1), password);
+      await tester.enterText(textFieldFinder.at(2), password);
+      await tester.tap(textButtonFinder.at(0));
       await tester.pumpAndSettle();
-      final snackBarFinder = find.byType(SnackBar);
       expect(snackBarFinder, findsOneWidget);
       expect(
           find.descendant(
@@ -262,7 +258,7 @@ void main() {
       (WidgetTester tester) async {
     when(toLogoutFunctionCall()).thenReturn(anything);
     await tester.pumpWidget(widgetInSkeleton);
-    await tester.tap(find.byType(TextButton).at(1));
+    await tester.tap(textButtonFinder.at(1));
     verify(toLogoutFunctionCall()).called(1);
   });
 }

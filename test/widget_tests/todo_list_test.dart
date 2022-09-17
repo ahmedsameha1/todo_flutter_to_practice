@@ -8,6 +8,7 @@ import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_list.dart';
 import 'package:uuid/uuid.dart';
 
+import 'common_finders.dart';
 import 'skeleton_for_widget_testing.dart';
 
 main() {
@@ -26,10 +27,10 @@ main() {
         child: skeleton);
     await widgetTester.pumpWidget(skeletonInProviderScope);
     expect(find.byType(TodoList), findsOneWidget);
-    expect(find.byType(ListView), findsOneWidget);
+    expect(listViewFinder, findsOneWidget);
     for (int i = 0; i < todos.length; i++) {
       final todo = todos[i];
-      final finder = find.byType(Dismissible).at(i);
+      final finder = dismissibleFinder.at(i);
       expect(finder, findsOneWidget);
       final dismissible =
           widgetTester.widget<Dismissible>(find.byKey(Key(todo.id.value)));
@@ -63,7 +64,7 @@ main() {
         child: skeleton);
     await widgetTester.pumpWidget(skeletonInProviderScope);
     expect(find.byType(TodoList), findsOneWidget);
-    expect(find.byType(ListView), findsOneWidget);
+    expect(listViewFinder, findsOneWidget);
     Dismissible? previousDismissible;
     for (int j = 0; j < todos.length; j++) {
       final todo = todos[j];
@@ -74,9 +75,8 @@ main() {
       expect((checkboxlisttile.title as Text).data, todo.title);
       expect((checkboxlisttile.subtitle as Text).data, todo.description);
       expect(checkboxlisttile.value, todo.done);
-      final dismissibleWidgetList = widgetTester
-          .widgetList<Dismissible>(find.byType(Dismissible))
-          .toList();
+      final dismissibleWidgetList =
+          widgetTester.widgetList<Dismissible>(dismissibleFinder).toList();
       if (j > 0) {
         expect(dismissibleWidgetList.indexOf(dismissible),
             equals(dismissibleWidgetList.indexOf(previousDismissible!) + 1));
@@ -102,8 +102,7 @@ main() {
         overrides: [todosProvider.overrideWithValue(todosNotifier)],
         child: skeleton);
     await widgetTester.pumpWidget(skeletonInProviderScope);
-    final dismissibleFinder = find.byType(Dismissible).at(1);
-    await widgetTester.drag(dismissibleFinder, const Offset(500.0, 0.0));
+    await widgetTester.drag(dismissibleFinder.at(1), const Offset(500.0, 0.0));
     await widgetTester.pump();
     final containerFinder = find.byType(Container);
     expect(widgetTester.widget<Container>(containerFinder).color, Colors.red);
@@ -111,16 +110,14 @@ main() {
     expect(containerFinder, findsNothing);
     expect(find.text(todo2.title), findsNothing);
     expect(find.text(todo2.description), findsNothing);
-    expect(find.byType(Dismissible), findsNWidgets(2));
-    expect(find.byType(CheckboxListTile), findsNWidgets(2));
-    var dismissible =
-        widgetTester.widget<Dismissible>(find.byType(Dismissible).at(0));
+    expect(dismissibleFinder, findsNWidgets(2));
+    expect(checkboxListTileFinder, findsNWidgets(2));
+    var dismissible = widgetTester.widget<Dismissible>(dismissibleFinder.at(0));
     var checkboxlisttile = dismissible.child as CheckboxListTile;
     expect((checkboxlisttile.title as Text).data, todo1.title);
     expect((checkboxlisttile.subtitle as Text).data, todo1.description);
     expect(checkboxlisttile.value, todo1.done);
-    dismissible =
-        widgetTester.widget<Dismissible>(find.byType(Dismissible).at(1));
+    dismissible = widgetTester.widget<Dismissible>(dismissibleFinder.at(1));
     checkboxlisttile = dismissible.child as CheckboxListTile;
     expect((checkboxlisttile.title as Text).data, todo3.title);
     expect((checkboxlisttile.subtitle as Text).data, todo3.description);
@@ -143,10 +140,10 @@ main() {
         overrides: [todosProvider.overrideWithValue(todosNotifier)],
         child: skeleton);
     await tester.pumpWidget(skeletonInProviderScope);
-    await tester.tap(find.byType(CheckboxListTile).at(0));
+    await tester.tap(checkboxListTileFinder.at(0));
     await tester.pumpAndSettle();
     expect(todosNotifier.state[0].done, true);
-    expect(tester
-        .widget<CheckboxListTile>(find.byType(CheckboxListTile).at(0)).value, true);
+    expect(tester.widget<CheckboxListTile>(checkboxListTileFinder.at(0)).value,
+        true);
   });
 }

@@ -10,6 +10,7 @@ import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
 import 'package:uuid/uuid.dart';
 
+import 'common_finders.dart';
 import 'my_matchers.dart';
 import 'skeleton_for_widget_testing.dart';
 import 'todo_form_test.mocks.dart';
@@ -51,29 +52,27 @@ main() {
     testWidgets("Test the presense of the main widgets",
         (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      expect(find.byType(Form), findsOneWidget);
-      expect(find.byType(Column), findsOneWidget);
+      expect(formFinder, findsOneWidget);
+      expect(columnFinder, findsOneWidget);
       final TextFormField titleTextFormField =
-          tester.widget(find.byType(TextFormField).at(0));
-      final TextField titleTextField =
-          tester.widget(find.byType(TextField).at(0));
+          tester.widget(textFormFieldFinder.at(0));
+      final TextField titleTextField = tester.widget(textFieldFinder.at(0));
       expect((titleTextField.decoration!.label as Text).data,
           TodoForm.labelString);
       expect(titleTextField.keyboardType, TextInputType.text);
       expect(titleTextFormField.initialValue, todos[1].title);
       final TextFormField descriptionTextFormField =
-          tester.widget(find.byType(TextFormField).at(1));
+          tester.widget(textFormFieldFinder.at(1));
       final TextField descriptionTextField =
-          tester.widget(find.byType(TextField).at(1));
+          tester.widget(textFieldFinder.at(1));
       expect((descriptionTextField.decoration!.label as Text).data,
           TodoForm.descriptionString);
       expect(descriptionTextField.keyboardType, TextInputType.multiline);
       expect(descriptionTextField.maxLines, 5);
       expect(descriptionTextFormField.initialValue, todos[1].description);
-      final Checkbox doneCheckbox = tester.widget(find.byType(Checkbox));
+      final Checkbox doneCheckbox = tester.widget(checkboxFinder);
       expect(doneCheckbox.value, todos[1].done);
-      final TextButton submissionButton =
-          tester.widget(find.byType(TextButton));
+      final TextButton submissionButton = tester.widget(textButtonFinder);
       expect((submissionButton.child as Text).data, "Update");
       expect(tester.widgetList(find.bySubtype()).toList(),
           FirstPrecedesSecond(doneCheckbox, titleTextFormField));
@@ -86,8 +85,8 @@ main() {
       testWidgets("Testing the validation of the title text field",
           (WidgetTester tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
+        final submissionTextButtonFinder = textButtonFinder;
+        final titleTextFormFieldFinder = textFormFieldFinder.at(0);
         await tester.enterText(titleTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
@@ -106,8 +105,8 @@ main() {
       testWidgets("Testing the validation of the description text field",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+        final submissionTextButtonFinder = textButtonFinder;
+        final descriptionTextFormFieldFinder = textFormFieldFinder.at(1);
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
@@ -128,9 +127,9 @@ main() {
       testWidgets("Testing the validation when no text in the two text fields",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
-        final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+        final submissionTextButtonFinder = textButtonFinder;
+        final titleTextFormFieldFinder = textFormFieldFinder.at(0);
+        final descriptionTextFormFieldFinder = textFormFieldFinder.at(1);
         await tester.enterText(titleTextFormFieldFinder, " ");
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
@@ -150,7 +149,7 @@ main() {
       testWidgets("The checkbox changes its value when clicked",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final doneCheckboxFinder = find.byType(Checkbox);
+        final doneCheckboxFinder = checkboxFinder;
         await tester.tap(doneCheckboxFinder);
         await tester.pumpAndSettle();
         expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
@@ -167,10 +166,10 @@ main() {
       const title = "my title";
       const description = "my description";
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(find.byType(TextFormField).at(0), title);
-      await tester.enterText(find.byType(TextFormField).at(1), description);
-      await tester.tap(find.byType(Checkbox));
-      await tester.tap(find.byType(TextButton));
+      await tester.enterText(textFormFieldFinder.at(0), title);
+      await tester.enterText(textFormFieldFinder.at(1), description);
+      await tester.tap(checkboxFinder);
+      await tester.tap(textButtonFinder);
       await tester.pumpAndSettle();
       expect(todosNotifier.state[1].title, title);
       expect(todosNotifier.state[1].description, description);
@@ -192,29 +191,27 @@ main() {
     testWidgets("Test the presense of the main widgets",
         (WidgetTester tester) async {
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      expect(find.byType(Form), findsOneWidget);
-      expect(find.byType(Column), findsOneWidget);
+      expect(formFinder, findsOneWidget);
+      expect(columnFinder, findsOneWidget);
       final TextFormField titleTextFormField =
-          tester.widget(find.byType(TextFormField).at(0));
-      final TextField titleTextField =
-          tester.widget(find.byType(TextField).at(0));
+          tester.widget(textFormFieldFinder.at(0));
+      final TextField titleTextField = tester.widget(textFieldFinder.at(0));
       expect((titleTextField.decoration!.label as Text).data,
           TodoForm.labelString);
       expect(titleTextField.keyboardType, TextInputType.text);
       expect(titleTextFormField.initialValue, "");
       final TextFormField descriptionTextFormField =
-          tester.widget(find.byType(TextFormField).at(1));
+          tester.widget(textFormFieldFinder.at(1));
       final TextField descriptionTextField =
-          tester.widget(find.byType(TextField).at(1));
+          tester.widget(textFieldFinder.at(1));
       expect((descriptionTextField.decoration!.label as Text).data,
           TodoForm.descriptionString);
       expect(descriptionTextField.keyboardType, TextInputType.multiline);
       expect(descriptionTextField.maxLines, 5);
       expect(descriptionTextFormField.initialValue, "");
-      final Checkbox doneCheckbox = tester.widget(find.byType(Checkbox));
+      final Checkbox doneCheckbox = tester.widget(checkboxFinder);
       expect(doneCheckbox.value, false);
-      final TextButton submissionButton =
-          tester.widget(find.byType(TextButton));
+      final TextButton submissionButton = tester.widget(textButtonFinder);
       expect((submissionButton.child as Text).data, "Create");
       expect(tester.widgetList(find.bySubtype()).toList(),
           FirstPrecedesSecond(doneCheckbox, titleTextFormField));
@@ -227,8 +224,8 @@ main() {
       testWidgets("Testing the validation of the title text field",
           (WidgetTester tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
+        final submissionTextButtonFinder = textButtonFinder;
+        final titleTextFormFieldFinder = textFormFieldFinder.at(0);
         await tester.enterText(titleTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
@@ -247,8 +244,8 @@ main() {
       testWidgets("Testing the validation of the description text field",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+        final submissionTextButtonFinder = textButtonFinder;
+        final descriptionTextFormFieldFinder = textFormFieldFinder.at(1);
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
@@ -269,9 +266,9 @@ main() {
       testWidgets("Testing the validation when no text in the two text fields",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final submissionTextButtonFinder = find.byType(TextButton);
-        final titleTextFormFieldFinder = find.byType(TextFormField).at(0);
-        final descriptionTextFormFieldFinder = find.byType(TextFormField).at(1);
+        final submissionTextButtonFinder = textButtonFinder;
+        final titleTextFormFieldFinder = textFormFieldFinder.at(0);
+        final descriptionTextFormFieldFinder = textFormFieldFinder.at(1);
         await tester.enterText(titleTextFormFieldFinder, " ");
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
@@ -291,7 +288,7 @@ main() {
       testWidgets("The checkbox changes its value when clicked",
           (tester) async {
         await tester.pumpWidget(widgetInSkeletonInProviderScope);
-        final doneCheckboxFinder = find.byType(Checkbox);
+        final doneCheckboxFinder = checkboxFinder;
         await tester.tap(doneCheckboxFinder);
         await tester.pumpAndSettle();
         expect((doneCheckboxFinder.evaluate().first.widget as Checkbox).value,
@@ -308,10 +305,10 @@ main() {
       const title = "my title";
       const description = "my description";
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(find.byType(TextFormField).at(0), title);
-      await tester.enterText(find.byType(TextFormField).at(1), description);
-      await tester.tap(find.byType(Checkbox));
-      await tester.tap(find.byType(TextButton));
+      await tester.enterText(textFormFieldFinder.at(0), title);
+      await tester.enterText(textFormFieldFinder.at(1), description);
+      await tester.tap(checkboxFinder);
+      await tester.tap(textButtonFinder);
       await tester.pumpAndSettle();
       expect(todosNotifier.state[3].title, title);
       expect(todosNotifier.state[3].description, description);

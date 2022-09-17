@@ -11,6 +11,7 @@ import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/widgets/email_while_auth.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
+import 'common_finders.dart';
 import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
@@ -43,31 +44,26 @@ void main() {
     await tester.pumpWidget(widgetInSkeleton);
     final emailWhileAuthFinder = find.byType(EmailWhileAuth);
     expect(emailWhileAuthFinder, findsOneWidget);
-    final formFinder = find.byType(Form);
     expect(find.descendant(of: emailWhileAuthFinder, matching: formFinder),
         findsOneWidget);
-    final columnFinder = find.byType(Column);
     expect(find.descendant(of: formFinder, matching: columnFinder),
         findsOneWidget);
-    final emailTextFormFieldFinder = find.byType(TextFormField);
+    final emailTextFormFieldFinder = textFormFieldFinder;
     expect(
         find.descendant(of: columnFinder, matching: emailTextFormFieldFinder),
         findsOneWidget);
     final TextField emailTextField = tester.widget(find.descendant(
-        of: emailTextFormFieldFinder, matching: find.byType(TextField)));
+        of: emailTextFormFieldFinder, matching: textFieldFinder));
     expect((emailTextField.decoration!.label as Text).data,
         EmailWhileAuth.emailString);
     expect(emailTextField.keyboardType, TextInputType.emailAddress);
-    final rowFinder =
-        find.descendant(of: columnFinder, matching: find.byType(Row));
-    expect(rowFinder, findsOneWidget);
-    final TextButton nextButton = tester.widget(find
-        .descendant(of: rowFinder, matching: find.byType(TextButton))
-        .at(0));
+    final descendantRowFinder = find.descendant(of: columnFinder, matching: rowFinder);
+    expect(descendantRowFinder, findsOneWidget);
+    final TextButton nextButton = tester.widget(
+        find.descendant(of: descendantRowFinder, matching: textButtonFinder).at(0));
     expect((nextButton.child as Text).data, EmailWhileAuth.nextString);
-    final TextButton cancelButton = tester.widget(find
-        .descendant(of: rowFinder, matching: find.byType(TextButton))
-        .at(1));
+    final TextButton cancelButton = tester.widget(
+        find.descendant(of: descendantRowFinder, matching: textButtonFinder).at(1));
     expect((cancelButton.child as Text).data, EmailWhileAuth.cancelString);
   });
 
@@ -75,24 +71,24 @@ void main() {
     widgetInSkeleton = createWidgetInASkeleton(
         EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
-    final emailTextFormFieldFinder = find.byType(TextFormField).at(0);
+    final emailTextFormFieldFinder = textFormFieldFinder.at(0);
     await tester.enterText(emailTextFormFieldFinder, "test@test.com");
-    await tester.tap(find.byType(TextButton).at(0));
+    await tester.tap(textButtonFinder.at(0));
     await tester.pumpAndSettle();
     expect(find.text(EmailWhileAuth.invalidEmailString), findsNothing);
     await tester.enterText(emailTextFormFieldFinder, "");
-    await tester.tap(find.byType(TextButton).at(0));
+    await tester.tap(textButtonFinder.at(0));
     await tester.pumpAndSettle();
     final validationErrorTextFinder = find.descendant(
         of: emailTextFormFieldFinder,
         matching: find.text(EmailWhileAuth.invalidEmailString));
     expect(validationErrorTextFinder, findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, " ");
-    await tester.tap(find.byType(TextButton).at(0));
+    await tester.tap(textButtonFinder.at(0));
     await tester.pumpAndSettle();
     expect(validationErrorTextFinder, findsOneWidget);
     await tester.enterText(emailTextFormFieldFinder, "test");
-    await tester.tap(find.byType(TextButton).at(0));
+    await tester.tap(textButtonFinder.at(0));
     await tester.pumpAndSettle();
     expect(validationErrorTextFinder, findsOneWidget);
     verify(verifyEmailFunctionCall(any, any)).called(1);
@@ -120,11 +116,11 @@ void main() {
       when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
           .thenThrow(firebaseAuthException);
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      final emailTextFormFieldFinder = find.byType(TextFormField);
+      final emailTextFormFieldFinder = textFormFieldFinder;
       await tester.enterText(emailTextFormFieldFinder, invalidEmail);
-      await tester.tap(find.byType(TextButton).at(0));
+      await tester.tap(textButtonFinder.at(0));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(snackBarFinder, findsOneWidget);
       expect(find.text(EmailWhileAuth.invalidEmailString), findsOneWidget);
     });
     testWidgets(
@@ -135,11 +131,11 @@ void main() {
       when(firebaseAuth.fetchSignInMethodsForEmail(invalidEmail))
           .thenAnswer((realInvocation) => Future.value(<String>["password"]));
       await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      final emailTextFormFieldFinder = find.byType(TextFormField);
+      final emailTextFormFieldFinder = textFormFieldFinder;
       await tester.enterText(emailTextFormFieldFinder, invalidEmail);
-      await tester.tap(find.byType(TextButton).at(0));
+      await tester.tap(textButtonFinder.at(0));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(snackBarFinder, findsNothing);
       expect(find.text(EmailWhileAuth.invalidEmailString), findsNothing);
     });
   });
@@ -150,7 +146,7 @@ void main() {
     widgetInSkeleton = createWidgetInASkeleton(
         EmailWhileAuth(verifyEmailFunctionCall, toLogoutFunctionCall));
     await tester.pumpWidget(widgetInSkeleton);
-    await tester.tap(find.byType(TextButton).at(1));
+    await tester.tap(textButtonFinder.at(1));
     verify(toLogoutFunctionCall()).called(1);
   });
 }
