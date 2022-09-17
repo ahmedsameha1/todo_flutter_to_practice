@@ -13,7 +13,7 @@ class Register extends HookWidget {
   static const failedString = "Failure: ";
   static const successString =
       "Success: Check your email to verify your email address";
-  static const passwordMinimumLength = 8;
+  static const passwordMinimumLength = 6;
   static const passwordValidationErrorString =
       "Password needs to be at least $passwordMinimumLength characters";
   static const confirmPasswordValidationErrorString =
