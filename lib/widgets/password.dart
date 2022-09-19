@@ -3,11 +3,13 @@ import 'package:todo_flutter_to_practice/widgets/register.dart';
 
 class Password extends StatelessWidget {
   final String _email;
-  const Password(this._email, {Key? key}) : super(key: key);
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  Password(this._email, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(children: [
         Text(_email),
         TextFormField(
@@ -18,11 +20,20 @@ class Password extends StatelessWidget {
           obscureText: true,
           autocorrect: false,
           enableSuggestions: false,
+          validator: (value) {
+            if (value == null ||
+                value.trim().length < Register.passwordMinimumLength) {
+              return Register.passwordValidationErrorString;
+            }
+            return null;
+          },
         ),
         Row(
           children: [
             TextButton(
-              onPressed: null,
+              onPressed: () {
+                _formKey.currentState!.validate();
+              },
               child: Text(Register.nextString),
             ),
             TextButton(
