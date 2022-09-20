@@ -1,18 +1,49 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
+import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/widgets/password.dart';
 import 'package:todo_flutter_to_practice/widgets/register.dart';
 
+import '../state/auth_state_notifier_test.mocks.dart';
 import 'common_finders.dart';
+import 'password_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
+abstract class SignInWithEmailAndPasswordFunction {
+  Future<void> call(String email, String password,
+      void Function(FirebaseAuthException exception) errorCallback);
+}
+
+@GenerateMocks([SignInWithEmailAndPasswordFunction])
 void main() {
   const email = "test@test.com";
   late Widget widgetInSkeleton;
+  const firebaseAuthExceptionCode = "code";
+  final firebaseAuthException =
+      FirebaseAuthException(code: firebaseAuthExceptionCode);
+  const User? nullUser = null;
+  late StreamController<User?> streamController;
+  late ProviderScope widgetInSkeletonInProviderScope;
+  late FirebaseAuth firebaseAuth;
+  late AuthStateNotifier authStateNotifier;
+  final signInWithEmailAndPasswordFunctionCall =
+      MockSignInWithEmailAndPasswordFunction();
   setUp(() {
-    widgetInSkeleton = createWidgetInASkeleton(Password(email));
+    firebaseAuth = MockFirebaseAuth();
+    streamController = StreamController();
+    when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
+    streamController.sink.add(nullUser);
+    authStateNotifier = AuthStateNotifier(firebaseAuth);
+    widgetInSkeleton = createWidgetInASkeleton(
+        Password(email, signInWithEmailAndPasswordFunctionCall));
   });
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
@@ -81,5 +112,38 @@ void main() {
     await tester.pumpAndSettle();
     expect(passwordTextField.controller!.text, "gfh");
     expect(passwordValidationErrorTextFinder, findsOneWidget);
+    verify(signInWithEmailAndPasswordFunctionCall(any, any, any)).called(1);
+  });
+  group("nextButton action", () {
+    setUp(() {
+      widgetInSkeleton = createWidgetInASkeleton(
+          Password(email, authStateNotifier.signInWithEmailAndPassword));
+      widgetInSkeletonInProviderScope = ProviderScope(
+          overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
+          child: widgetInSkeleton);
+    });
+    testWidgets(
+        "Test that a SnackBar with an error text is shown when FirebaseAuthException is thrown",
+        (WidgetTester tester) async {
+      const password = "oehgolewrbgowerb";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(email))
+          .thenAnswer((realInvocation) => Future.value(<String>["password"]));
+      authStateNotifier.verifyEmail(email, (exception) {});
+      when(firebaseAuth.signInWithEmailAndPassword(
+              email: email, password: password))
+          .thenThrow(firebaseAuthException);
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      await tester.enterText(textFieldFinder.at(0), password);
+      await tester.tap(textButtonFinder.at(0));
+      await tester.pumpAndSettle();
+      expect(snackBarFinder, findsOneWidget);
+      expect(
+          find.descendant(
+              of: snackBarFinder,
+              matching: find
+                  .text("${Register.failedString}$firebaseAuthExceptionCode")),
+          findsOneWidget);
+    });
   });
 }

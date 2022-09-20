@@ -1,10 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_flutter_to_practice/widgets/register.dart';
 
 class Password extends StatelessWidget {
   final String _email;
   final GlobalKey<FormState> _formKey = GlobalKey();
-  Password(this._email, {Key? key}) : super(key: key);
+  final Future<void> Function(String email, String password,
+      void Function(FirebaseAuthException exception) errorCallback) nextAction;
+  String? _password;
+  Password(this._email, this.nextAction, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +31,24 @@ class Password extends StatelessWidget {
             }
             return null;
           },
+          onSaved: (newValue) {
+            if (newValue != null) {
+              _password = newValue;
+            }
+          },
         ),
         Row(
           children: [
             TextButton(
-              onPressed: () {
-                _formKey.currentState!.validate();
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  await nextAction(_email, _password!, ((exception) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content:
+                            Text("${Register.failedString}${exception.code}")));
+                  }));
+                }
               },
               child: Text(Register.nextString),
             ),
