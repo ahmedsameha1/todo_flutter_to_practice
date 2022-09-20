@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
@@ -12,8 +13,15 @@ import 'package:flutter/material.dart';
 import '../state/auth_state_notifier_test.mocks.dart';
 import 'common_finders.dart';
 import 'email_while_auth_test.mocks.dart';
+import 'register_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
+abstract class RegisterAccountFunction {
+  Future<void> call(String email, String password, String displayName,
+      void Function(FirebaseAuthException exception) errorCallback);
+}
+
+@GenerateMocks([RegisterAccountFunction])
 void main() {
   const email = "test@test.com";
   late Widget widgetInSkeleton;
@@ -27,6 +35,7 @@ void main() {
   late FirebaseAuth firebaseAuth;
   late AuthStateNotifier authStateNotifier;
   late UserCredential userCredential;
+  final registerAccountFunctionCall = MockRegisterAccountFunction();
   final toLogoutFunctionCall = MockToLogoutFunction();
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
@@ -35,8 +44,8 @@ void main() {
     when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
     streamController.sink.add(nullUser);
     authStateNotifier = AuthStateNotifier(firebaseAuth);
-    widgetInSkeleton = createWidgetInASkeleton(Register(
-        email, authStateNotifier.registerAccount, toLogoutFunctionCall));
+    widgetInSkeleton = createWidgetInASkeleton(
+        Register(email, registerAccountFunctionCall, toLogoutFunctionCall));
   });
   testWidgets("Test the precence of the main widgets",
       (WidgetTester tester) async {
@@ -130,6 +139,7 @@ void main() {
       await tester.tap(nextTextButtonFinder);
       await tester.pumpAndSettle();
       expect(nameValidationErrorTextFinder, findsOneWidget);
+      verifyNever(registerAccountFunctionCall(any, any, any, any));
     });
 
     testWidgets("password textfield validation", (WidgetTester tester) async {
@@ -159,6 +169,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(passwordTextField.controller!.text, "gfh");
       expect(passwordValidationErrorTextFinder, findsOneWidget);
+      verifyNever(registerAccountFunctionCall(any, any, any, any));
     });
 
     testWidgets("confirm password textfield validation",
@@ -190,11 +201,14 @@ void main() {
               .controller!
               .text,
           "rhg");
+      verifyNever(registerAccountFunctionCall(any, any, any, any));
     });
   });
   group("nextButton action", () {
     const userDisplayName = "name";
     setUp(() {
+    widgetInSkeleton = createWidgetInASkeleton(
+        Register(email, authStateNotifier.registerAccount, toLogoutFunctionCall));
       widgetInSkeletonInProviderScope = ProviderScope(
           overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
           child: widgetInSkeleton);
