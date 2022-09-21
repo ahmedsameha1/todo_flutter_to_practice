@@ -145,5 +145,23 @@ void main() {
                   .text("${Register.failedString}$firebaseAuthExceptionCode")),
           findsOneWidget);
     });
+    testWidgets(
+        "Test that no SnackBar is shown when NO FirebaseAuthException is thrown",
+        (WidgetTester tester) async {
+      late UserCredential userCredential = MockUserCredential();
+      const password = "oehgolewrbgowerb";
+      authStateNotifier.startLoginFlow();
+      when(firebaseAuth.fetchSignInMethodsForEmail(email))
+          .thenAnswer((realInvocation) => Future.value(<String>["password"]));
+      authStateNotifier.verifyEmail(email, (exception) {});
+      when(firebaseAuth.signInWithEmailAndPassword(
+              email: email, password: password))
+          .thenAnswer((realInvocation) => Future.value(userCredential));
+      await tester.pumpWidget(widgetInSkeletonInProviderScope);
+      await tester.enterText(textFieldFinder.at(0), password);
+      await tester.tap(textButtonFinder.at(0));
+      await tester.pumpAndSettle();
+      expect(snackBarFinder, findsNothing);
+    });
   });
 }
