@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_flutter_to_practice/widgets/register.dart';
 
-class EmailWhileAuth extends StatelessWidget {
+class Email extends StatelessWidget {
   static const String emailString = "Email";
   static const String nextString = "Next";
   static const String cancelString = "Cancel";
@@ -13,8 +14,7 @@ class EmailWhileAuth extends StatelessWidget {
       void Function(FirebaseException exception) errorCallback) nextAction;
   final void Function() cancelAction;
   String? _email;
-  EmailWhileAuth(this.nextAction, this.cancelAction, {Key? key})
-      : super(key: key);
+  Email(this.nextAction, this.cancelAction, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,9 @@ class EmailWhileAuth extends StatelessWidget {
                   await nextAction(
                       _email!,
                       (exception) => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text(invalidEmailString))));
+                          SnackBar(
+                              content: Text(
+                                  "${Register.failedString}${exception.code}"))));
                 }
               },
               child: const Text(nextString),
