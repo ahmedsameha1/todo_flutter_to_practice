@@ -7,8 +7,10 @@ class Password extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final Future<void> Function(String email, String password,
       void Function(FirebaseAuthException exception) errorCallback) nextAction;
+  final void Function() cancelAction;
   String? _password;
-  Password(this._email, this.nextAction, {Key? key}) : super(key: key);
+  Password(this._email, this.nextAction, this.cancelAction, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +52,13 @@ class Password extends StatelessWidget {
                   }));
                 }
               },
-              child: Text(Register.nextString),
+              child: const Text(Register.nextString),
             ),
             TextButton(
-              onPressed: null,
-              child: Text(Register.cancelString),
+              onPressed: () {
+                cancelAction();
+              },
+              child: const Text(Register.cancelString),
             )
           ],
         ),

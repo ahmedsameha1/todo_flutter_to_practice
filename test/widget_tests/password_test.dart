@@ -14,6 +14,7 @@ import 'package:todo_flutter_to_practice/widgets/register.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
 import 'common_finders.dart';
+import 'email_while_auth_test.mocks.dart';
 import 'password_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
@@ -36,14 +37,15 @@ void main() {
   late AuthStateNotifier authStateNotifier;
   final signInWithEmailAndPasswordFunctionCall =
       MockSignInWithEmailAndPasswordFunction();
+  final toLogoutFunctionCall = MockToLogoutFunction();
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
     streamController = StreamController();
     when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
     streamController.sink.add(nullUser);
     authStateNotifier = AuthStateNotifier(firebaseAuth);
-    widgetInSkeleton = createWidgetInASkeleton(
-        Password(email, signInWithEmailAndPasswordFunctionCall));
+    widgetInSkeleton = createWidgetInASkeleton(Password(
+        email, signInWithEmailAndPasswordFunctionCall, toLogoutFunctionCall));
   });
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
@@ -116,8 +118,8 @@ void main() {
   });
   group("nextButton action", () {
     setUp(() {
-      widgetInSkeleton = createWidgetInASkeleton(
-          Password(email, authStateNotifier.signInWithEmailAndPassword));
+      widgetInSkeleton = createWidgetInASkeleton(Password(email,
+          authStateNotifier.signInWithEmailAndPassword, toLogoutFunctionCall));
       widgetInSkeletonInProviderScope = ProviderScope(
           overrides: [authStateProvider.overrideWithValue(authStateNotifier)],
           child: widgetInSkeleton);
@@ -163,5 +165,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(snackBarFinder, findsNothing);
     });
+  });
+  testWidgets(
+      "Test that the cancel function called when cancel Text Button clicked",
+      (WidgetTester tester) async {
+    when(toLogoutFunctionCall()).thenReturn(anything);
+    await tester.pumpWidget(widgetInSkeleton);
+    await tester.tap(textButtonFinder.at(1));
+    await tester.pumpAndSettle();
+    verify(toLogoutFunctionCall()).called(1);
   });
 }
