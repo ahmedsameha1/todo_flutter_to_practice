@@ -10,10 +10,11 @@ import 'skeleton_for_widget_testing.dart';
 void main() {
   final updateUserFunctionCall = MockToLogoutFunction();
   final sendVerificationEmailFunctionCall = MockToLogoutFunction();
+  final signOutFunctionCall = MockToLogoutFunction();
   late Widget widgetInSkeleton;
   setUp(() {
-    widgetInSkeleton = createWidgetInASkeleton(
-        Locked(updateUserFunctionCall, sendVerificationEmailFunctionCall));
+    widgetInSkeleton = createWidgetInASkeleton(Locked(updateUserFunctionCall,
+        sendVerificationEmailFunctionCall, signOutFunctionCall));
   });
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
@@ -68,5 +69,12 @@ void main() {
     await tester.pumpWidget(widgetInSkeleton);
     await tester.tap(textButtonFinder.at(1));
     verify(sendVerificationEmailFunctionCall()).called(1);
+  });
+  testWidgets("Test that clicking the logout TextButton calls its action",
+      (WidgetTester tester) async {
+    when(signOutFunctionCall()).thenReturn(anything);
+    await tester.pumpWidget(widgetInSkeleton);
+    await tester.tap(textButtonFinder.at(2));
+    verify(signOutFunctionCall()).called(1);
   });
 }

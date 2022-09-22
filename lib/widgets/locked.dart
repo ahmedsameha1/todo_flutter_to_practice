@@ -8,7 +8,10 @@ class Locked extends StatelessWidget {
   static const logout = "Log out";
   final void Function() refreshAction;
   final void Function() sendVerificationEmailAction;
-  const Locked(this.refreshAction, this.sendVerificationEmailAction, {Key? key})
+  final void Function() logoutAction;
+  const Locked(
+      this.refreshAction, this.sendVerificationEmailAction, this.logoutAction,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -28,7 +31,11 @@ class Locked extends StatelessWidget {
             sendVerificationEmailAction();
           },
         ),
-        TextButton(child: const Text(logout), onPressed: null)
+        TextButton(
+            child: const Text(logout),
+            onPressed: () {
+              logoutAction();
+            })
       ],
     );
   }
