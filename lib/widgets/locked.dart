@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class Locked extends StatelessWidget {
   static const refreshString = "Refresh Account";
@@ -9,7 +6,8 @@ class Locked extends StatelessWidget {
       "Check your email to verify your email address";
   static const sendVerificationEmail = "Resend verification email";
   static const logout = "Log out";
-  const Locked({Key? key}) : super(key: key);
+  final void Function() refreshAction;
+  const Locked(this.refreshAction, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +15,10 @@ class Locked extends StatelessWidget {
       children: [
         const Text(verifyEmailAddress),
         TextButton(
-          child: Text(refreshString),
-          onPressed: null,
+          child: const Text(refreshString),
+          onPressed: () {
+            refreshAction();
+          },
         ),
         TextButton(
           child: const Text(sendVerificationEmail),

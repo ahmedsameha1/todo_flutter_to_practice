@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:todo_flutter_to_practice/widgets/locked.dart';
 
 import 'common_finders.dart';
+import 'email_while_auth_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
 void main() {
+  final updateUserFunctionCall = MockToLogoutFunction();
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
-    await tester.pumpWidget(createWidgetInASkeleton(Locked()));
+    await tester
+        .pumpWidget(createWidgetInASkeleton(Locked(updateUserFunctionCall)));
     final lockedFinder = find.byType(Locked);
     expect(lockedFinder, findsOneWidget);
     expect(find.descendant(of: lockedFinder, matching: columnFinder),
@@ -44,5 +48,13 @@ void main() {
         ((tester.widget(logoutTextButtonFinder) as TextButton).child as Text)
             .data,
         Locked.logout);
+  });
+  testWidgets("Test that clicking the refresh TextButton call its action",
+      (WidgetTester tester) async {
+    when(updateUserFunctionCall()).thenReturn(anything);
+    await tester
+        .pumpWidget(createWidgetInASkeleton(Locked(updateUserFunctionCall)));
+    await tester.tap(textButtonFinder.at(0));
+    verify(updateUserFunctionCall()).called(1);
   });
 }
