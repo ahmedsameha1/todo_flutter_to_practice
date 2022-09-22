@@ -9,10 +9,15 @@ import 'skeleton_for_widget_testing.dart';
 
 void main() {
   final updateUserFunctionCall = MockToLogoutFunction();
+  final sendVerificationEmailFunctionCall = MockToLogoutFunction();
+  late Widget widgetInSkeleton;
+  setUp(() {
+    widgetInSkeleton = createWidgetInASkeleton(
+        Locked(updateUserFunctionCall, sendVerificationEmailFunctionCall));
+  });
   testWidgets("Test the precense of the main widgets",
       (WidgetTester tester) async {
-    await tester
-        .pumpWidget(createWidgetInASkeleton(Locked(updateUserFunctionCall)));
+    await tester.pumpWidget(widgetInSkeleton);
     final lockedFinder = find.byType(Locked);
     expect(lockedFinder, findsOneWidget);
     expect(find.descendant(of: lockedFinder, matching: columnFinder),
@@ -52,9 +57,16 @@ void main() {
   testWidgets("Test that clicking the refresh TextButton call its action",
       (WidgetTester tester) async {
     when(updateUserFunctionCall()).thenReturn(anything);
-    await tester
-        .pumpWidget(createWidgetInASkeleton(Locked(updateUserFunctionCall)));
+    await tester.pumpWidget(widgetInSkeleton);
     await tester.tap(textButtonFinder.at(0));
     verify(updateUserFunctionCall()).called(1);
+  });
+  testWidgets(
+      "Test that clicking the sendVerificationEmail TextButton call its action",
+      (WidgetTester tester) async {
+    when(sendVerificationEmailFunctionCall()).thenReturn(anything);
+    await tester.pumpWidget(widgetInSkeleton);
+    await tester.tap(textButtonFinder.at(1));
+    verify(sendVerificationEmailFunctionCall()).called(1);
   });
 }

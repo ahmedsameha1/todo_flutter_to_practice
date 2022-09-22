@@ -7,7 +7,9 @@ class Locked extends StatelessWidget {
   static const sendVerificationEmail = "Resend verification email";
   static const logout = "Log out";
   final void Function() refreshAction;
-  const Locked(this.refreshAction, {Key? key}) : super(key: key);
+  final void Function() sendVerificationEmailAction;
+  const Locked(this.refreshAction, this.sendVerificationEmailAction, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,9 @@ class Locked extends StatelessWidget {
         ),
         TextButton(
           child: const Text(sendVerificationEmail),
-          onPressed: null,
+          onPressed: () {
+            sendVerificationEmailAction();
+          },
         ),
         TextButton(child: const Text(logout), onPressed: null)
       ],
