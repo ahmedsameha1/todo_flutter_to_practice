@@ -12,3 +12,4 @@ final rowFinder = find.byType(Row);
 final dismissibleFinder = find.byType(Dismissible);
 final checkboxListTileFinder = find.byType(CheckboxListTile);
 final listViewFinder = find.byType(ListView);
+final bySubtypeFinder = find.bySubtype();

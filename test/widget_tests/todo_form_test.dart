@@ -74,11 +74,12 @@ main() {
       expect(doneCheckbox.value, todos[1].done);
       final TextButton submissionButton = tester.widget(textButtonFinder);
       expect((submissionButton.child as Text).data, "Update");
-      expect(tester.widgetList(find.bySubtype()).toList(),
-          FirstPrecedesSecond(doneCheckbox, titleTextFormField));
-      expect(tester.widgetList(find.bySubtype()).toList(),
+      final listOfWidgets = tester.widgetList(find.bySubtype()).toList();
+      expect(
+          listOfWidgets, FirstPrecedesSecond(doneCheckbox, titleTextFormField));
+      expect(listOfWidgets,
           FirstPrecedesSecond(titleTextFormField, descriptionTextFormField));
-      expect(tester.widgetList(find.bySubtype()).toList(),
+      expect(listOfWidgets,
           FirstPrecedesSecond(descriptionTextFormField, submissionButton));
     });
     group("Test form validation", () {
@@ -92,7 +93,7 @@ main() {
         await tester.pumpAndSettle();
         expect(find.text(TodoForm.titleValidationErrorMessage), findsOneWidget);
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            tester.widgetList(bySubtypeFinder).toList(),
             FirstPrecedesSecond(
                 tester.widget(titleTextFormFieldFinder),
                 tester
@@ -113,7 +114,7 @@ main() {
         expect(find.text(TodoForm.descriptionValidationErrorMessage),
             findsOneWidget);
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            tester.widgetList(bySubtypeFinder).toList(),
             FirstPrecedesSecond(
                 tester.widget(descriptionTextFormFieldFinder),
                 tester.widget(
@@ -134,13 +135,14 @@ main() {
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
+        final listOfWidgets = tester.widgetList(find.bySubtype()).toList();
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            listOfWidgets,
             FirstPrecedesSecond(
                 tester.widget(find.text(TodoForm.titleValidationErrorMessage)),
                 tester.widget(descriptionTextFormFieldFinder)));
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            listOfWidgets,
             FirstPrecedesSecond(
                 tester.widget(descriptionTextFormFieldFinder),
                 tester.widget(
@@ -213,11 +215,12 @@ main() {
       expect(doneCheckbox.value, false);
       final TextButton submissionButton = tester.widget(textButtonFinder);
       expect((submissionButton.child as Text).data, "Create");
-      expect(tester.widgetList(find.bySubtype()).toList(),
-          FirstPrecedesSecond(doneCheckbox, titleTextFormField));
-      expect(tester.widgetList(find.bySubtype()).toList(),
+      final listOfWidgets = tester.widgetList(find.bySubtype()).toList();
+      expect(
+          listOfWidgets, FirstPrecedesSecond(doneCheckbox, titleTextFormField));
+      expect(listOfWidgets,
           FirstPrecedesSecond(titleTextFormField, descriptionTextFormField));
-      expect(tester.widgetList(find.bySubtype()).toList(),
+      expect(listOfWidgets,
           FirstPrecedesSecond(descriptionTextFormField, submissionButton));
     });
     group("Test form validation", () {
@@ -231,7 +234,7 @@ main() {
         await tester.pumpAndSettle();
         expect(find.text(TodoForm.titleValidationErrorMessage), findsOneWidget);
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            tester.widgetList(bySubtypeFinder).toList(),
             FirstPrecedesSecond(
                 tester.widget(titleTextFormFieldFinder),
                 tester
@@ -252,7 +255,7 @@ main() {
         expect(find.text(TodoForm.descriptionValidationErrorMessage),
             findsOneWidget);
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            tester.widgetList(bySubtypeFinder).toList(),
             FirstPrecedesSecond(
                 tester.widget(descriptionTextFormFieldFinder),
                 tester.widget(
@@ -273,13 +276,14 @@ main() {
         await tester.enterText(descriptionTextFormFieldFinder, " ");
         await tester.tap(submissionTextButtonFinder);
         await tester.pumpAndSettle();
+        final listOfWidgets = tester.widgetList(find.bySubtype()).toList();
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            listOfWidgets,
             FirstPrecedesSecond(
                 tester.widget(find.text(TodoForm.titleValidationErrorMessage)),
                 tester.widget(descriptionTextFormFieldFinder)));
         expect(
-            tester.widgetList(find.bySubtype()).toList(),
+            listOfWidgets,
             FirstPrecedesSecond(
                 tester.widget(descriptionTextFormFieldFinder),
                 tester.widget(
