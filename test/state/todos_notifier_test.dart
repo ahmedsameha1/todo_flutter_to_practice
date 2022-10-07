@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todo_flutter_to_practice/domain_model/todo.dart';
-import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
+import 'package:todo_flutter_to_practice/database/this_app_drift_database.dart';
 import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:uuid/uuid.dart';
 
@@ -54,21 +53,21 @@ main() {
     TodosNotifier todosNotifier = TodosNotifier();
     Todo todo1 = createTodoInstance("title1", "description1", false);
     todosNotifier.addTodo(todo1);
-    todosNotifier.removeTodo(todo1.id.value);
+    todosNotifier.removeTodo(todo1.id);
     expect(todosNotifier.state.length, 0);
     Todo todo2 = createTodoInstance("title2", "description2", false);
     Todo todo3 = createTodoInstance("title3", "description3", false);
     todosNotifier.addTodo(todo2);
     todosNotifier.addTodo(todo3);
     todosNotifier.addTodo(todo1);
-    todosNotifier.removeTodo(todo3.id.value);
+    todosNotifier.removeTodo(todo3.id);
     expect(todosNotifier.state.length, 2);
     expect(todosNotifier.state[0], todo2);
     expect(todosNotifier.state[1], todo1);
     Todo todo4 = createTodoInstance("title4", "description4", false);
     todosNotifier = TodosNotifier([todo1, todo2, todo3, todo4]);
-    todosNotifier.removeTodo(todo1.id.value);
-    todosNotifier.removeTodo(todo4.id.value);
+    todosNotifier.removeTodo(todo1.id);
+    todosNotifier.removeTodo(todo4.id);
     expect(todosNotifier.state.length, 2);
     expect(todosNotifier.state[0], todo2);
     expect(todosNotifier.state[1], todo3);
@@ -81,19 +80,19 @@ main() {
     TodosNotifier todosNotifier = TodosNotifier();
     Todo todo1 = createTodoInstance("title1", "description1", false);
     todosNotifier.addTodo(todo1);
-    todosNotifier.toggle(todo1.id.value);
+    todosNotifier.toggle(todo1.id);
     expect(todosNotifier.state[0].done, true);
     Todo todo2 = createTodoInstance("title2", "description2", false);
     Todo todo3 = createTodoInstance("title3", "description3", false);
     Todo todo4 = createTodoInstance("title4", "description4", false);
     todosNotifier = TodosNotifier([todo1, todo2, todo3, todo4]);
-    todosNotifier.toggle(todo1.id.value);
-    todosNotifier.toggle(todo3.id.value);
+    todosNotifier.toggle(todo1.id);
+    todosNotifier.toggle(todo3.id);
     expect(todosNotifier.state[0].done, true);
     expect(todosNotifier.state[1].done, false);
     expect(todosNotifier.state[2].done, true);
     expect(todosNotifier.state[3].done, false);
-    todosNotifier.toggle(todo3.id.value);
+    todosNotifier.toggle(todo3.id);
     expect(todosNotifier.state[2].done, false);
   });
   test("""
@@ -105,22 +104,22 @@ main() {
     const description = "description";
     final todoId = const Uuid().v4();
     Todo todo1 = Todo(
-        id: TodoIdString(const Uuid().v4()),
+        id: const Uuid().v4(),
         title: "${title}1",
         description: "${description}1",
         done: false);
     Todo todo2 = Todo(
-        id: TodoIdString(todoId),
+        id: todoId,
         title: "${title}2",
         description: "${description}2",
         done: false);
     Todo todo3 = Todo(
-        id: TodoIdString(const Uuid().v4()),
+        id: const Uuid().v4(),
         title: "${title}3",
         description: "${description}3",
         done: false);
     Todo toUpdateFromTodo = Todo(
-        id: TodoIdString(todoId),
+        id: todoId,
         title: "my title",
         description: "my description",
         done: true);
@@ -140,7 +139,7 @@ main() {
 
 createTodoInstance(String title, String description, bool done) {
   return Todo(
-      id: TodoIdString(const Uuid().v4()),
+      id: const Uuid().v4(),
       title: title,
       description: description,
       done: done);

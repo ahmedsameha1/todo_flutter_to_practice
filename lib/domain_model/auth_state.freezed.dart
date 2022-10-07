@@ -147,10 +147,9 @@ abstract class _AuthState implements AuthState {
       final String? email}) = _$_AuthState;
 
   @override
-  ApplicationLoginState get applicationLoginState =>
-      throw _privateConstructorUsedError;
+  ApplicationLoginState get applicationLoginState;
   @override
-  String? get email => throw _privateConstructorUsedError;
+  String? get email;
   @override
   @JsonKey(ignore: true)
   _$$_AuthStateCopyWith<_$_AuthState> get copyWith =>

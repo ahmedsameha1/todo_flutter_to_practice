@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:todo_flutter_to_practice/domain_model/todo.dart';
-import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:uuid/uuid.dart';
+
+import '../database/this_app_drift_database.dart';
 
 class TodoForm extends ConsumerStatefulWidget {
   final Function() goRouterContextPopFunction;
@@ -41,15 +41,15 @@ class TodoForm extends ConsumerStatefulWidget {
       action;
   late String? title, description;
   late bool? done;
-  late TodoIdString? id;
+  late String? id;
 
   TodoForm(this.goRouterContextPopFunction,
       {Key? key,
-      TodoIdString? id,
+      String? id,
       String? title,
       String? description,
       bool? done})
-      : id = id == null && done == null ? TodoIdString(const Uuid().v4()) : id,
+      : id = id == null && done == null ? const Uuid().v4() : id,
         title =
             id == null && title == null && description == null && done == null
                 ? ""

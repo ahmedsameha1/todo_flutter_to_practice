@@ -13,7 +13,7 @@ import 'package:todo_flutter_to_practice/widgets/register.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
 import 'common_finders.dart';
-import 'email_while_auth_test.mocks.dart';
+import 'email_test.mocks.dart';
 import 'skeleton_for_widget_testing.dart';
 
 abstract class VerifyEmailFunction {

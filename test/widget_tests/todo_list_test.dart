@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todo_flutter_to_practice/domain_model/todo.dart';
-import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
+import 'package:todo_flutter_to_practice/database/this_app_drift_database.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_list.dart';
@@ -13,8 +12,8 @@ import 'skeleton_for_widget_testing.dart';
 
 main() {
   testWidgets("Testing TodoList widget", (widgetTester) async {
-    final id1 = TodoIdString(const Uuid().v4());
-    final id2 = TodoIdString(const Uuid().v4());
+    final id1 = const Uuid().v4();
+    final id2 = const Uuid().v4();
     Todo todo1 = Todo(
         id: id1, title: "title1", description: "description1", done: false);
     Todo todo2 =
@@ -33,7 +32,7 @@ main() {
       final finder = dismissibleFinder.at(i);
       expect(finder, findsOneWidget);
       final dismissible =
-          widgetTester.widget<Dismissible>(find.byKey(Key(todo.id.value)));
+          widgetTester.widget<Dismissible>(find.byKey(Key(todo.id)));
       final checkboxlisttile = dismissible.child as CheckboxListTile;
       expect((checkboxlisttile.title as Text).data, todo.title);
       expect((checkboxlisttile.subtitle as Text).data, todo.description);
@@ -45,12 +44,12 @@ main() {
     const lengthOfList = 300;
     const double delta = lengthOfList / 6;
     const uuid = Uuid();
-    var ids = <TodoIdString>[];
+    var ids = <String>[];
     var todos = <Todo>[];
     var done = false;
     for (int i = 0; i < lengthOfList; i++) {
       done = i % 4 == 0 ? true : false;
-      ids.add(TodoIdString(uuid.v4()));
+      ids.add(uuid.v4());
       todos.add(Todo(
           id: ids[i],
           title: "title$i",
@@ -68,7 +67,7 @@ main() {
     Dismissible? previousDismissible;
     for (int j = 0; j < todos.length; j++) {
       final todo = todos[j];
-      final finder = find.byKey(Key(todo.id.value));
+      final finder = find.byKey(Key(todo.id));
       await widgetTester.scrollUntilVisible(finder, delta);
       final dismissible = widgetTester.widget<Dismissible>(finder);
       final checkboxlisttile = dismissible.child as CheckboxListTile;
@@ -86,9 +85,9 @@ main() {
   });
   testWidgets("Testing TodoList widget deleting a todo by swiping",
       (widgetTester) async {
-    final id1 = TodoIdString(const Uuid().v4());
-    final id2 = TodoIdString(const Uuid().v4());
-    final id3 = TodoIdString(const Uuid().v4());
+    final id1 = const Uuid().v4();
+    final id2 = const Uuid().v4();
+    final id3 = const Uuid().v4();
     Todo todo1 = Todo(
         id: id1, title: "title1", description: "description1", done: false);
     Todo todo2 =
@@ -124,9 +123,9 @@ main() {
     expect(checkboxlisttile.value, todo3.done);
   });
   testWidgets("Testing the done checkbox", (WidgetTester tester) async {
-    final id1 = TodoIdString(const Uuid().v4());
-    final id2 = TodoIdString(const Uuid().v4());
-    final id3 = TodoIdString(const Uuid().v4());
+    final id1 = const Uuid().v4();
+    final id2 = const Uuid().v4();
+    final id3 = const Uuid().v4();
     Todo todo1 = Todo(
         id: id1, title: "title1", description: "description1", done: false);
     Todo todo2 =

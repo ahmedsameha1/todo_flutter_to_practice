@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
-import '../domain_model/todo.dart';
+import '../database/this_app_drift_database.dart';
 import 'todo_form.dart';
 
 class UpdateTodo extends ConsumerWidget {
   final Function() goRouterContextPopFunction;
-  final TodoIdString todoId;
+  final String todoId;
 
   const UpdateTodo(this.todoId, this.goRouterContextPopFunction, {Key? key})
       : super(key: key);

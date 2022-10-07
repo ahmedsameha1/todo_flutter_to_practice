@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:todo_flutter_to_practice/domain_model/todo.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
+
+import '../database/this_app_drift_database.dart';
 
 class TodoList extends ConsumerWidget {
   const TodoList({Key? key}) : super(key: key);
@@ -13,9 +14,9 @@ class TodoList extends ConsumerWidget {
       itemCount: todos.length,
       itemBuilder: (listViewContext, index) {
         return Dismissible(
-          key: Key(todos[index].id.value),
+          key: Key(todos[index].id),
           onDismissed: (direction) {
-            ref.read(todosProvider.notifier).removeTodo(todos[index].id.value);
+            ref.read(todosProvider.notifier).removeTodo(todos[index].id);
           },
           background: Container(color: Colors.red),
           child: CheckboxListTile(
@@ -24,7 +25,7 @@ class TodoList extends ConsumerWidget {
             value: todos[index].done,
             onChanged: (bool? value) {
               if (value != null) {
-                ref.read(todosProvider.notifier).toggle(todos[index].id.value);
+                ref.read(todosProvider.notifier).toggle(todos[index].id);
               }
             },
           ),

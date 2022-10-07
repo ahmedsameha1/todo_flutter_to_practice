@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:todo_flutter_to_practice/domain_model/todo.dart';
-import 'package:todo_flutter_to_practice/domain_model/value_classes/todo_id_string.dart';
+import 'package:todo_flutter_to_practice/database/this_app_drift_database.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 import 'package:todo_flutter_to_practice/state/todos_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/todo_form.dart';
@@ -22,9 +21,9 @@ abstract class GoRouterContextPopFunction {
 @GenerateMocks([GoRouterContextPopFunction])
 main() {
   final goRouterContextPopFunctionCall = MockGoRouterContextPopFunction();
-  final id1 = TodoIdString(const Uuid().v4());
-  final id2 = TodoIdString(const Uuid().v4());
-  final id3 = TodoIdString(const Uuid().v4());
+  final id1 = const Uuid().v4();
+  final id2 = const Uuid().v4();
+  final id3 = const Uuid().v4();
   Todo todo1 =
       Todo(id: id1, title: "title1", description: "description1", done: false);
   Todo todo2 =
