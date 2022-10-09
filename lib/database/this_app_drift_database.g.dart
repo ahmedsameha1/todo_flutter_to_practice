@@ -262,6 +262,7 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $TodosTable todos = $TodosTable(this);
+  late final TodosDao todosDao = TodosDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, dynamic>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
