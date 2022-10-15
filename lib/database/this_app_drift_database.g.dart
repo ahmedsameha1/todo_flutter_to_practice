@@ -12,11 +12,13 @@ class Todo extends DataClass implements Insertable<Todo> {
   final String title;
   final String description;
   final bool done;
+  final DateTime createdAt;
   const Todo(
       {required this.id,
       required this.title,
       required this.description,
-      required this.done});
+      required this.done,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -24,6 +26,7 @@ class Todo extends DataClass implements Insertable<Todo> {
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
     map['done'] = Variable<bool>(done);
+    map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
@@ -33,6 +36,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       title: Value(title),
       description: Value(description),
       done: Value(done),
+      createdAt: Value(createdAt),
     );
   }
 
@@ -44,6 +48,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
       done: serializer.fromJson<bool>(json['done']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
   @override
@@ -54,15 +59,22 @@ class Todo extends DataClass implements Insertable<Todo> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
       'done': serializer.toJson<bool>(done),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  Todo copyWith({String? id, String? title, String? description, bool? done}) =>
+  Todo copyWith(
+          {String? id,
+          String? title,
+          String? description,
+          bool? done,
+          DateTime? createdAt}) =>
       Todo(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
         done: done ?? this.done,
+        createdAt: createdAt ?? this.createdAt,
       );
   @override
   String toString() {
@@ -70,13 +82,14 @@ class Todo extends DataClass implements Insertable<Todo> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
-          ..write('done: $done')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, done);
+  int get hashCode => Object.hash(id, title, description, done, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -84,7 +97,8 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
-          other.done == this.done);
+          other.done == this.done &&
+          other.createdAt == this.createdAt);
 }
 
 class TodosCompanion extends UpdateCompanion<Todo> {
@@ -92,30 +106,36 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<String> title;
   final Value<String> description;
   final Value<bool> done;
+  final Value<DateTime> createdAt;
   const TodosCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.done = const Value.absent(),
+    this.createdAt = const Value.absent(),
   });
   TodosCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     required String description,
-    this.done = const Value.absent(),
+    required bool done,
+    this.createdAt = const Value.absent(),
   })  : title = Value(title),
-        description = Value(description);
+        description = Value(description),
+        done = Value(done);
   static Insertable<Todo> custom({
     Expression<String>? id,
     Expression<String>? title,
     Expression<String>? description,
     Expression<bool>? done,
+    Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (done != null) 'done': done,
+      if (createdAt != null) 'created_at': createdAt,
     });
   }
 
@@ -123,12 +143,14 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       {Value<String>? id,
       Value<String>? title,
       Value<String>? description,
-      Value<bool>? done}) {
+      Value<bool>? done,
+      Value<DateTime>? createdAt}) {
     return TodosCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       done: done ?? this.done,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -147,6 +169,9 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     if (done.present) {
       map['done'] = Variable<bool>(done.value);
     }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     return map;
   }
 
@@ -156,7 +181,8 @@ class TodosCompanion extends UpdateCompanion<Todo> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
-          ..write('done: $done')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
@@ -198,11 +224,18 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   late final GeneratedColumn<bool> done = GeneratedColumn<bool>(
       'done', aliasedName, false,
       type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: 'CHECK ("done" IN (0, 1))',
-      defaultValue: const Constant(false));
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK ("done" IN (0, 1))');
+  final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
-  List<GeneratedColumn> get $columns => [id, title, description, done];
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, description, done, createdAt];
   @override
   String get aliasedName => _alias ?? 'todos';
   @override
@@ -232,6 +265,12 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
     if (data.containsKey('done')) {
       context.handle(
           _doneMeta, done.isAcceptableOrUnknown(data['done']!, _doneMeta));
+    } else if (isInserting) {
+      context.missing(_doneMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
     return context;
   }
@@ -250,6 +289,8 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       done: attachedDatabase.options.types
           .read(DriftSqlType.bool, data['${effectivePrefix}done'])!,
+      createdAt: attachedDatabase.options.types
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -268,4 +309,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [todos];
+  @override
+  DriftDatabaseOptions get options =>
+      const DriftDatabaseOptions(storeDateTimeAsText: true);
 }

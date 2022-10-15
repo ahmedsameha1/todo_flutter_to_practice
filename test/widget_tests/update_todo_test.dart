@@ -19,7 +19,8 @@ void main() {
               id: id1,
               title: "title1",
               description: "description1",
-              done: false)
+              done: false,
+              createdAt: DateTime.now().toUtc())
         ]))
       ],
       child: createWidgetInASkeleton(

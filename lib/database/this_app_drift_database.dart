@@ -18,7 +18,8 @@ class Todos extends Table {
   TextColumn get description => text()
       .withLength(min: 1, max: 10000)
       .check(title.trim().length.isBiggerThanValue(0))();
-  BoolColumn get done => boolean().withDefault(const Constant(false))();
+  BoolColumn get done => boolean()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};

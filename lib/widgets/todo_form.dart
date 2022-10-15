@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
@@ -14,7 +15,8 @@ class TodoForm extends ConsumerStatefulWidget {
         id: todoForm.id!,
         title: todoForm.title!,
         description: todoForm.description!,
-        done: todoForm.done!);
+        done: todoForm.done!,
+        createdAt: todoForm.createdAt!);
     widgetRef.read(todosProvider.notifier).updateTodo(todo);
     todoForm.goRouterContextPopFunction();
   }
@@ -26,7 +28,8 @@ class TodoForm extends ConsumerStatefulWidget {
         id: todoForm.id!,
         title: todoForm.title!,
         description: todoForm.description!,
-        done: todoForm.done!);
+        done: todoForm.done!,
+        createdAt: clock.now().toUtc());
     widgetRef.read(todosProvider.notifier).addTodo(todo);
     todoForm.goRouterContextPopFunction();
   }
@@ -42,13 +45,15 @@ class TodoForm extends ConsumerStatefulWidget {
   late String? title, description;
   late bool? done;
   late String? id;
+  late final DateTime? createdAt;
 
   TodoForm(this.goRouterContextPopFunction,
       {Key? key,
       String? id,
       String? title,
       String? description,
-      bool? done})
+      bool? done,
+      this.createdAt})
       : id = id == null && done == null ? const Uuid().v4() : id,
         title =
             id == null && title == null && description == null && done == null

@@ -11,13 +11,14 @@ import 'common_finders.dart';
 import 'skeleton_for_widget_testing.dart';
 
 main() {
+  final createdAt = DateTime.now().toUtc();
   testWidgets("Testing TodoList widget", (widgetTester) async {
     final id1 = const Uuid().v4();
     final id2 = const Uuid().v4();
     Todo todo1 = Todo(
-        id: id1, title: "title1", description: "description1", done: false);
+        id: id1, title: "title1", description: "description1", done: false, createdAt: createdAt);
     Todo todo2 =
-        Todo(id: id2, title: "title2", description: "description2", done: true);
+        Todo(id: id2, title: "title2", description: "description2", done: true, createdAt: createdAt);
     final todos = [todo1, todo2];
     TodosNotifier todosNotifier = TodosNotifier(todos);
     var skeleton = createWidgetInASkeleton(const TodoList());
@@ -54,7 +55,8 @@ main() {
           id: ids[i],
           title: "title$i",
           description: "description$i",
-          done: done));
+          done: done,
+          createdAt: createdAt));
     }
     TodosNotifier todosNotifier = TodosNotifier(todos);
     var skeleton = createWidgetInASkeleton(const TodoList());
@@ -89,11 +91,11 @@ main() {
     final id2 = const Uuid().v4();
     final id3 = const Uuid().v4();
     Todo todo1 = Todo(
-        id: id1, title: "title1", description: "description1", done: false);
+        id: id1, title: "title1", description: "description1", done: false, createdAt: createdAt);
     Todo todo2 =
-        Todo(id: id2, title: "title2", description: "description2", done: true);
+        Todo(id: id2, title: "title2", description: "description2", done: true, createdAt: createdAt);
     Todo todo3 =
-        Todo(id: id3, title: "title3", description: "description3", done: true);
+        Todo(id: id3, title: "title3", description: "description3", done: true, createdAt: createdAt);
     final todos = [todo1, todo2, todo3];
     TodosNotifier todosNotifier = TodosNotifier(todos);
     var skeleton = createWidgetInASkeleton(const TodoList());
@@ -127,11 +129,11 @@ main() {
     final id2 = const Uuid().v4();
     final id3 = const Uuid().v4();
     Todo todo1 = Todo(
-        id: id1, title: "title1", description: "description1", done: false);
+        id: id1, title: "title1", description: "description1", done: false, createdAt: createdAt);
     Todo todo2 =
-        Todo(id: id2, title: "title2", description: "description2", done: true);
+        Todo(id: id2, title: "title2", description: "description2", done: true, createdAt: createdAt);
     Todo todo3 =
-        Todo(id: id3, title: "title3", description: "description3", done: true);
+        Todo(id: id3, title: "title3", description: "description3", done: true, createdAt: createdAt);
     final todos = [todo1, todo2, todo3];
     TodosNotifier todosNotifier = TodosNotifier(todos);
     var skeleton = createWidgetInASkeleton(const TodoList());

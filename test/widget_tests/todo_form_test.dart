@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,12 +25,26 @@ main() {
   final id1 = const Uuid().v4();
   final id2 = const Uuid().v4();
   final id3 = const Uuid().v4();
-  Todo todo1 =
-      Todo(id: id1, title: "title1", description: "description1", done: false);
-  Todo todo2 =
-      Todo(id: id2, title: "title2", description: "description2", done: true);
-  Todo todo3 =
-      Todo(id: id3, title: "title3", description: "description3", done: false);
+  final DateTime todo2CreatedAt =
+      DateTime.now().subtract(const Duration(days: 3)).toUtc();
+  Todo todo1 = Todo(
+      id: id1,
+      title: "title1",
+      description: "description1",
+      done: false,
+      createdAt: DateTime.now().toUtc());
+  Todo todo2 = Todo(
+      id: id2,
+      title: "title2",
+      description: "description2",
+      done: true,
+      createdAt: todo2CreatedAt);
+  Todo todo3 = Todo(
+      id: id3,
+      title: "title3",
+      description: "description3",
+      done: false,
+      createdAt: DateTime.now().toUtc());
   final todos = [todo1, todo2, todo3];
   late TodosNotifier todosNotifier;
   late ProviderScope widgetInSkeletonInProviderScope;
@@ -42,7 +57,8 @@ main() {
           id: todo2.id,
           title: todo2.title,
           description: todo2.description,
-          done: todo2.done));
+          done: todo2.done,
+          createdAt: todo2.createdAt));
       widgetInSkeletonInProviderScope = ProviderScope(
           overrides: [todosProvider.overrideWithValue(todosNotifier)],
           child: widgetInSkeleton);
@@ -176,6 +192,7 @@ main() {
       expect(todosNotifier.state[1].description, description);
       expect(todosNotifier.state[1].done, !todo2.done);
       expect(todosNotifier.state[1].id, todo2.id);
+      expect(todosNotifier.state[1].createdAt, todo2CreatedAt);
       verify(goRouterContextPopFunctionCall()).called(1);
     });
   });
@@ -305,18 +322,22 @@ main() {
     testWidgets(
         "The submission function get called when the text button is being clicked",
         (tester) async {
-      const title = "my title";
-      const description = "my description";
-      await tester.pumpWidget(widgetInSkeletonInProviderScope);
-      await tester.enterText(textFormFieldFinder.at(0), title);
-      await tester.enterText(textFormFieldFinder.at(1), description);
-      await tester.tap(checkboxFinder);
-      await tester.tap(textButtonFinder);
-      await tester.pumpAndSettle();
-      expect(todosNotifier.state[3].title, title);
-      expect(todosNotifier.state[3].description, description);
-      expect(todosNotifier.state[3].done, true);
-      verify(goRouterContextPopFunctionCall()).called(1);
+      final DateTime createdAt = DateTime(2020).toUtc();
+      withClock(Clock.fixed(createdAt), () async {
+        const title = "my title";
+        const description = "my description";
+        await tester.pumpWidget(widgetInSkeletonInProviderScope);
+        await tester.enterText(textFormFieldFinder.at(0), title);
+        await tester.enterText(textFormFieldFinder.at(1), description);
+        await tester.tap(checkboxFinder);
+        await tester.tap(textButtonFinder);
+        await tester.pumpAndSettle();
+        expect(todosNotifier.state[3].title, title);
+        expect(todosNotifier.state[3].description, description);
+        expect(todosNotifier.state[3].done, true);
+        expect(todosNotifier.state[3].createdAt, createdAt);
+        verify(goRouterContextPopFunctionCall()).called(1);
+      });
     });
   });
 }

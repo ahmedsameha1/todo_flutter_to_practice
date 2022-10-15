@@ -103,26 +103,33 @@ main() {
     const title = "title";
     const description = "description";
     final todoId = const Uuid().v4();
+    final todo1CreatedAt = DateTime.now().subtract(const Duration(days: 4)).toUtc();
+    final todo2CreatedAt = DateTime.now().subtract(const Duration(days: 3)).toUtc();
+    final todo3CreatedAt = DateTime.now().subtract(const Duration(days: 2)).toUtc();
     Todo todo1 = Todo(
         id: const Uuid().v4(),
         title: "${title}1",
         description: "${description}1",
-        done: false);
+        done: false,
+        createdAt: todo1CreatedAt);
     Todo todo2 = Todo(
         id: todoId,
         title: "${title}2",
         description: "${description}2",
-        done: false);
+        done: false,
+        createdAt: todo2CreatedAt);
     Todo todo3 = Todo(
         id: const Uuid().v4(),
         title: "${title}3",
         description: "${description}3",
-        done: false);
+        done: false, 
+        createdAt: todo3CreatedAt);
     Todo toUpdateFromTodo = Todo(
         id: todoId,
         title: "my title",
         description: "my description",
-        done: true);
+        done: true,
+        createdAt: DateTime.now().toUtc());
     TodosNotifier todosNotifier = TodosNotifier([todo1, todo2, todo3]);
     todosNotifier.updateTodo(toUpdateFromTodo);
     expect(todosNotifier.state[0].done, false);
@@ -134,6 +141,9 @@ main() {
     expect(todosNotifier.state[0].description, "${description}1");
     expect(todosNotifier.state[1].description, "my description");
     expect(todosNotifier.state[2].description, "${description}3");
+    expect(todosNotifier.state[0].createdAt, todo1CreatedAt);
+    expect(todosNotifier.state[1].createdAt, todo2CreatedAt);
+    expect(todosNotifier.state[2].createdAt, todo3CreatedAt);
   });
 }
 
@@ -142,5 +152,6 @@ createTodoInstance(String title, String description, bool done) {
       id: const Uuid().v4(),
       title: title,
       description: description,
-      done: done);
+      done: done,
+      createdAt: DateTime.now().toUtc());
 }
