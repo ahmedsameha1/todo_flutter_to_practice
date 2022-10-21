@@ -16,4 +16,14 @@ class TodosDao extends DatabaseAccessor<AppDatabase> with _$TodosDaoMixin {
   Future<List<Todo>> getAll() {
     return select(todos).get();
   }
+
+  Future<int> mutate(Todo todo) {
+    TodosCompanion todosCompanion = TodosCompanion(
+        id: Value(todo.id),
+        title: Value(todo.title),
+        description: Value(todo.description),
+        done: Value(todo.done));
+    return (update(todos)..where((tbl) => tbl.id.equals(todo.id)))
+        .write(todosCompanion);
+  }
 }

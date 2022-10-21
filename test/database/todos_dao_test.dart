@@ -154,7 +154,134 @@ main() {
       expect(todos[0].description, description);
       expect(todos[0].done, done);
       expect(todos[0].createdAt.isBefore(DateTime.now()), true);
-      expect(todos[0].createdAt.isAfter(DateTime.now().subtract(const Duration(seconds: 1))), true);
+      expect(
+          todos[0]
+              .createdAt
+              .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
+          true);
+    });
+  });
+  group("Updating a todo", () {
+    final id = const Uuid().v4();
+    const title = "title";
+    const description = "description";
+    const done = false;
+    final createdAt = DateTime.now().toUtc();
+    setUp(() async {
+      final TodosCompanion todosCompanion = TodosCompanion(
+          id: Value(id),
+          title: const Value(title),
+          description: const Value(description),
+          done: const Value(done),
+          createdAt: Value(createdAt));
+      await todosDao.create(todosCompanion);
+    });
+    test("Invalid Todo: empty title", () async {
+      const updatedTitle = "";
+      const updatedDescription = "updateddescription";
+      const updatedDone = false;
+      final Todo todo = Todo(
+          id: id,
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: createdAt);
+      expect(() async {
+        await todosDao.mutate(todo);
+      },
+          throwsA(predicate((e) =>
+              e is InvalidDataException && e.message.contains("title"))));
+    });
+    test("Invalid Todo: empty description", () async {
+      const updatedTitle = "updatedTitle";
+      const updatedDescription = "";
+      const updatedDone = false;
+      final Todo todo = Todo(
+          id: id,
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: createdAt);
+      expect(() async {
+        await todosDao.mutate(todo);
+      },
+          throwsA(predicate((e) =>
+              e is InvalidDataException && e.message.contains("description"))));
+    });
+    test("Invalid todo: empty title & empty description", () async {
+      const updatedTitle = "";
+      const updatedDescription = "";
+      const updatedDone = false;
+      final Todo todo = Todo(
+          id: id,
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: createdAt);
+      expect(() async {
+        await todosDao.mutate(todo);
+      },
+          throwsA(predicate((e) =>
+              e is InvalidDataException &&
+              e.message.contains("description") &&
+              e.message.contains("title"))));
+    });
+    test("Good case", () async {
+      const updatedTitle = "updatedTitle";
+      const updatedDescription = "updatedDescription";
+      const updatedDone = true;
+      final Todo todo = Todo(
+          id: id,
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: createdAt);
+      await todosDao.mutate(todo);
+      final todos = await todosDao.getAll();
+      expect(todos.length, 1);
+      expect(todos[0].id, id);
+      expect(todos[0].title, updatedTitle);
+      expect(todos[0].description, updatedDescription);
+      expect(todos[0].done, updatedDone);
+      expect(todos[0].createdAt, createdAt);
+    });
+    test("Good case: no update for createdAt field", () async {
+      const updatedTitle = "updatedTitle";
+      const updatedDescription = "updatedDescription";
+      const updatedDone = true;
+      final Todo todo = Todo(
+          id: id,
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: DateTime.now().toUtc());
+      await todosDao.mutate(todo);
+      final todos = await todosDao.getAll();
+      expect(todos.length, 1);
+      expect(todos[0].id, id);
+      expect(todos[0].title, updatedTitle);
+      expect(todos[0].description, updatedDescription);
+      expect(todos[0].done, updatedDone);
+      expect(todos[0].createdAt, createdAt);
+    });
+    test("Good case: no update because id is different", () async {
+      const updatedTitle = "updatedTitle";
+      const updatedDescription = "updatedDescription";
+      const updatedDone = true;
+      final Todo todo = Todo(
+          id: const Uuid().v4(),
+          title: updatedTitle,
+          description: updatedDescription,
+          done: updatedDone,
+          createdAt: DateTime.now().toUtc());
+      await todosDao.mutate(todo);
+      final todos = await todosDao.getAll();
+      expect(todos.length, 1);
+      expect(todos[0].id, id);
+      expect(todos[0].title, title);
+      expect(todos[0].description, description);
+      expect(todos[0].done, done);
+      expect(todos[0].createdAt, createdAt);
     });
   });
 }
