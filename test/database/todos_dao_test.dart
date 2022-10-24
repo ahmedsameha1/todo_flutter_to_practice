@@ -284,4 +284,39 @@ main() {
       expect(todos[0].createdAt, createdAt);
     });
   });
+
+  group("Delete a todo", () {
+    final id1 = const Uuid().v4();
+    final id2 = const Uuid().v4();
+    const title = "title";
+    const description = "description";
+    const done = false;
+    final createdAt = DateTime.now().toUtc();
+    setUp(() async {
+      TodosCompanion todosCompanion = TodosCompanion(
+          id: Value(id1),
+          title: const Value(title),
+          description: const Value(description),
+          done: const Value(done),
+          createdAt: Value(createdAt));
+      await todosDao.create(todosCompanion);
+      todosCompanion = TodosCompanion(
+          id: Value(id2),
+          title: const Value("${title}2"),
+          description: const Value(description),
+          done: const Value(done),
+          createdAt: Value(createdAt));
+      await todosDao.create(todosCompanion);
+    });
+    test("Good case", () async {
+      await todosDao.remove(id1);
+      var todos = await todosDao.getAll();
+      expect(todos.length, 1);
+      expect(todos[0].id, id2);
+      await todosDao.remove(id1);
+      todos = await todosDao.getAll();
+      expect(todos.length, 1);
+      expect(todos[0].id, id2);
+    });
+  });
 }

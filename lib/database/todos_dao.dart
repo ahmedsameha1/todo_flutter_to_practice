@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:drift/drift.dart';
 import 'package:todo_flutter_to_practice/database/this_app_drift_database.dart';
 
@@ -25,5 +23,9 @@ class TodosDao extends DatabaseAccessor<AppDatabase> with _$TodosDaoMixin {
         done: Value(todo.done));
     return (update(todos)..where((tbl) => tbl.id.equals(todo.id)))
         .write(todosCompanion);
+  }
+
+  Future<int> remove(String id) {
+    return (delete(todos)..where((tbl) => tbl.id.equals(id))).go();
   }
 }
