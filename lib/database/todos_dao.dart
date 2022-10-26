@@ -15,6 +15,10 @@ class TodosDao extends DatabaseAccessor<AppDatabase> with _$TodosDaoMixin {
     return select(todos).get();
   }
 
+  Stream<List<Todo>> watchAll() {
+    return select(todos).watch();
+  }
+
   Future<int> mutate(Todo todo) {
     TodosCompanion todosCompanion = TodosCompanion(
         id: Value(todo.id),
