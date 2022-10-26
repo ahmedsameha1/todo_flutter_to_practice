@@ -319,4 +319,76 @@ main() {
       expect(todos[0].id, id2);
     });
   });
+  test("Get all todos", () async {
+    const title = "title";
+    const description = "description";
+    const done = false;
+    TodosCompanion todosCompanion = TodosCompanion(
+      title: Value("${title}1"),
+      description: Value("${description}1"),
+      done: Value(done),
+    );
+    await todosDao.create(todosCompanion);
+    todosCompanion = TodosCompanion(
+      title: Value("${title}2"),
+      description: Value("${description}2"),
+      done: Value(!done),
+    );
+    await todosDao.create(todosCompanion);
+    final id3 = Uuid().v4();
+    todosCompanion = TodosCompanion(
+      id: Value(id3),
+      title: Value("${title}3"),
+      description: Value("${description}3"),
+      done: Value(done),
+    );
+    await todosDao.create(todosCompanion);
+    final id4 = Uuid().v4();
+    todosCompanion = TodosCompanion(
+      id: Value(id4),
+      title: Value("${title}4"),
+      description: Value("${description}4"),
+      done: Value(!done),
+    );
+    await todosDao.create(todosCompanion);
+    await todosDao.remove(id3);
+    await todosDao.mutate(Todo(
+        id: id4,
+        title: "t",
+        description: "d",
+        done: !done,
+        createdAt: DateTime.now()));
+    final todos = await todosDao.getAll();
+    expect(todos.length, 3);
+    expect(Uuid.isValidUUID(fromString: todos[0].id), true);
+    expect(todos[0].title, "${title}1");
+    expect(todos[0].description, "${description}1");
+    expect(todos[0].done, done);
+    expect(todos[0].createdAt.isBefore(DateTime.now()), true);
+    expect(
+        todos[0]
+            .createdAt
+            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
+        true);
+    expect(Uuid.isValidUUID(fromString: todos[0].id), true);
+    expect(todos[1].title, "${title}2");
+    expect(todos[1].description, "${description}2");
+    expect(todos[1].done, !done);
+    expect(todos[1].createdAt.isBefore(DateTime.now()), true);
+    expect(
+        todos[1]
+            .createdAt
+            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
+        true);
+    expect(Uuid.isValidUUID(fromString: todos[0].id), true);
+    expect(todos[2].title, "t");
+    expect(todos[2].description, "d");
+    expect(todos[2].done, !done);
+    expect(todos[2].createdAt.isBefore(DateTime.now()), true);
+    expect(
+        todos[2]
+            .createdAt
+            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
+        true);
+  });
 }
