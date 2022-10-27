@@ -324,17 +324,15 @@ main() {
     const title = "title";
     const description = "description";
     const done = false;
-    TodosCompanion todosCompanion = TodosCompanion(
-      title: Value("${title}1"),
-      description: Value("${description}1"),
-      done: Value(done),
-    );
-    await todosDao.create(todosCompanion);
+    final createdAt1 = DateTime(2020);
+    final createdAt2 = DateTime(2019);
+    final createdAt3 = DateTime(2018);
+    TodosCompanion todosCompanion;
     todosCompanion = TodosCompanion(
-      title: Value("${title}2"),
-      description: Value("${description}2"),
-      done: Value(!done),
-    );
+        title: Value("${title}2"),
+        description: Value("${description}2"),
+        done: Value(!done),
+        createdAt: Value(createdAt2));
     await todosDao.create(todosCompanion);
     final id3 = Uuid().v4();
     todosCompanion = TodosCompanion(
@@ -346,11 +344,17 @@ main() {
     await todosDao.create(todosCompanion);
     final id4 = Uuid().v4();
     todosCompanion = TodosCompanion(
-      id: Value(id4),
-      title: Value("${title}4"),
-      description: Value("${description}4"),
-      done: Value(!done),
-    );
+        id: Value(id4),
+        title: Value("${title}4"),
+        description: Value("${description}4"),
+        done: Value(!done),
+        createdAt: Value(createdAt3));
+    await todosDao.create(todosCompanion);
+    todosCompanion = TodosCompanion(
+        title: Value("${title}1"),
+        description: Value("${description}1"),
+        done: Value(done),
+        createdAt: Value(createdAt1));
     await todosDao.create(todosCompanion);
     await todosDao.remove(id3);
     await todosDao.mutate(Todo(
@@ -365,49 +369,32 @@ main() {
     expect(todos[0].title, "${title}1");
     expect(todos[0].description, "${description}1");
     expect(todos[0].done, done);
-    expect(todos[0].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[0]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[0].createdAt, createdAt1);
     expect(Uuid.isValidUUID(fromString: todos[0].id), true);
     expect(todos[1].title, "${title}2");
     expect(todos[1].description, "${description}2");
     expect(todos[1].done, !done);
-    expect(todos[1].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[1]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[1].createdAt, createdAt2);
     expect(Uuid.isValidUUID(fromString: todos[0].id), true);
     expect(todos[2].title, "t");
     expect(todos[2].description, "d");
     expect(todos[2].done, !done);
-    expect(todos[2].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[2]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[2].createdAt, createdAt3);
   });
 
   test("Watch all todos", () async {
     const title = "title";
     const description = "description";
     const done = false;
-    TodosCompanion todosCompanion = TodosCompanion(
-      title: Value("${title}1"),
-      description: Value("${description}1"),
-      done: Value(done),
-    );
-    await todosDao.create(todosCompanion);
+    final createdAt1 = DateTime(2020);
+    final createdAt2 = DateTime(2019);
+    final createdAt3 = DateTime(2018);
+    TodosCompanion todosCompanion;
     todosCompanion = TodosCompanion(
-      title: Value("${title}2"),
-      description: Value("${description}2"),
-      done: Value(!done),
-    );
+        title: Value("${title}2"),
+        description: Value("${description}2"),
+        done: Value(!done),
+        createdAt: Value(createdAt2));
     await todosDao.create(todosCompanion);
     final id3 = Uuid().v4();
     todosCompanion = TodosCompanion(
@@ -419,11 +406,17 @@ main() {
     await todosDao.create(todosCompanion);
     final id4 = Uuid().v4();
     todosCompanion = TodosCompanion(
-      id: Value(id4),
-      title: Value("${title}4"),
-      description: Value("${description}4"),
-      done: Value(!done),
-    );
+        id: Value(id4),
+        title: Value("${title}4"),
+        description: Value("${description}4"),
+        done: Value(!done),
+        createdAt: Value(createdAt3));
+    await todosDao.create(todosCompanion);
+    todosCompanion = TodosCompanion(
+        title: Value("${title}1"),
+        description: Value("${description}1"),
+        done: Value(done),
+        createdAt: Value(createdAt1));
     await todosDao.create(todosCompanion);
     await todosDao.remove(id3);
     await todosDao.mutate(Todo(
@@ -439,31 +432,16 @@ main() {
     expect(todos[0].title, "${title}1");
     expect(todos[0].description, "${description}1");
     expect(todos[0].done, done);
-    expect(todos[0].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[0]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[0].createdAt, createdAt1);
     expect(Uuid.isValidUUID(fromString: todos[0].id), true);
     expect(todos[1].title, "${title}2");
     expect(todos[1].description, "${description}2");
     expect(todos[1].done, !done);
-    expect(todos[1].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[1]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[1].createdAt, createdAt2);
     expect(Uuid.isValidUUID(fromString: todos[0].id), true);
     expect(todos[2].title, "t");
     expect(todos[2].description, "d");
     expect(todos[2].done, !done);
-    expect(todos[2].createdAt.isBefore(DateTime.now()), true);
-    expect(
-        todos[2]
-            .createdAt
-            .isAfter(DateTime.now().subtract(const Duration(seconds: 1))),
-        true);
+    expect(todos[2].createdAt, createdAt3);
   });
 }

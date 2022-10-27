@@ -12,11 +12,21 @@ class TodosDao extends DatabaseAccessor<AppDatabase> with _$TodosDaoMixin {
   }
 
   Future<List<Todo>> getAll() {
-    return select(todos).get();
+    return (select(todos)
+          ..orderBy([
+            ((tbl) => OrderingTerm(
+                expression: tbl.createdAt, mode: OrderingMode.desc))
+          ]))
+        .get();
   }
 
   Stream<List<Todo>> watchAll() {
-    return select(todos).watch();
+    return (select(todos)
+          ..orderBy([
+            ((tbl) => OrderingTerm(
+                expression: tbl.createdAt, mode: OrderingMode.desc))
+          ]))
+        .watch();
   }
 
   Future<int> mutate(Todo todo) {
