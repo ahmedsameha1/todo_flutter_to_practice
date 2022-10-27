@@ -126,10 +126,9 @@ main() {
           done: const Value(done),
           createdAt: Value(createdAt));
       await todosDao.create(todosCompanion);
-      final todos = await todosDao.getAll();
-      expect(todos.length, 1);
+      final todo = await todosDao.getById(id);
       expect(
-          todos[0],
+          todo,
           Todo(
               id: id,
               title: title,
@@ -237,13 +236,12 @@ main() {
           done: updatedDone,
           createdAt: createdAt);
       await todosDao.mutate(todo);
-      final todos = await todosDao.getAll();
-      expect(todos.length, 1);
-      expect(todos[0].id, id);
-      expect(todos[0].title, updatedTitle);
-      expect(todos[0].description, updatedDescription);
-      expect(todos[0].done, updatedDone);
-      expect(todos[0].createdAt, createdAt);
+      final gottenTodo = await todosDao.getById(id);
+      expect(gottenTodo.id, id);
+      expect(gottenTodo.title, updatedTitle);
+      expect(gottenTodo.description, updatedDescription);
+      expect(gottenTodo.done, updatedDone);
+      expect(gottenTodo.createdAt, createdAt);
     });
     test("Good case: no update for createdAt field", () async {
       const updatedTitle = "updatedTitle";
@@ -256,13 +254,12 @@ main() {
           done: updatedDone,
           createdAt: DateTime.now().toUtc());
       await todosDao.mutate(todo);
-      final todos = await todosDao.getAll();
-      expect(todos.length, 1);
-      expect(todos[0].id, id);
-      expect(todos[0].title, updatedTitle);
-      expect(todos[0].description, updatedDescription);
-      expect(todos[0].done, updatedDone);
-      expect(todos[0].createdAt, createdAt);
+      final gottenTodo = await todosDao.getById(id);
+      expect(gottenTodo.id, id);
+      expect(gottenTodo.title, updatedTitle);
+      expect(gottenTodo.description, updatedDescription);
+      expect(gottenTodo.done, updatedDone);
+      expect(gottenTodo.createdAt, createdAt);
     });
     test("Good case: no update because id is different", () async {
       const updatedTitle = "updatedTitle";
@@ -275,49 +272,32 @@ main() {
           done: updatedDone,
           createdAt: DateTime.now().toUtc());
       await todosDao.mutate(todo);
-      final todos = await todosDao.getAll();
-      expect(todos.length, 1);
-      expect(todos[0].id, id);
-      expect(todos[0].title, title);
-      expect(todos[0].description, description);
-      expect(todos[0].done, done);
-      expect(todos[0].createdAt, createdAt);
+      final gottenTodo = await todosDao.getById(id);
+      expect(gottenTodo.id, id);
+      expect(gottenTodo.title, title);
+      expect(gottenTodo.description, description);
+      expect(gottenTodo.done, done);
+      expect(gottenTodo.createdAt, createdAt);
     });
   });
 
-  group("Delete a todo", () {
+  test("Good case", () async {
     final id1 = const Uuid().v4();
-    final id2 = const Uuid().v4();
     const title = "title";
     const description = "description";
     const done = false;
     final createdAt = DateTime.now().toUtc();
-    setUp(() async {
-      TodosCompanion todosCompanion = TodosCompanion(
-          id: Value(id1),
-          title: const Value(title),
-          description: const Value(description),
-          done: const Value(done),
-          createdAt: Value(createdAt));
-      await todosDao.create(todosCompanion);
-      todosCompanion = TodosCompanion(
-          id: Value(id2),
-          title: const Value("${title}2"),
-          description: const Value(description),
-          done: const Value(done),
-          createdAt: Value(createdAt));
-      await todosDao.create(todosCompanion);
-    });
-    test("Good case", () async {
-      await todosDao.remove(id1);
-      var todos = await todosDao.getAll();
-      expect(todos.length, 1);
-      expect(todos[0].id, id2);
-      await todosDao.remove(id1);
-      todos = await todosDao.getAll();
-      expect(todos.length, 1);
-      expect(todos[0].id, id2);
-    });
+    TodosCompanion todosCompanion = TodosCompanion(
+        id: Value(id1),
+        title: const Value(title),
+        description: const Value(description),
+        done: const Value(done),
+        createdAt: Value(createdAt));
+    await todosDao.create(todosCompanion);
+    await todosDao.remove(id1);
+    expect(() async {
+      await todosDao.getById(id1);
+    }, throwsA(predicate((e) => e is StateError)));
   });
 
   test("Get all todos", () async {
