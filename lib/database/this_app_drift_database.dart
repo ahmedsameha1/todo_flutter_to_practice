@@ -27,16 +27,17 @@ class Todos extends Table {
 
 @DriftDatabase(tables: [Todos], daos: [TodosDao])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase(QueryExecutor e) : super(e);
+  static const databaseFileName = "db.sqlite";
+  static LazyDatabase openConnection() {
+    return LazyDatabase(() async {
+      final dbDirectory = await getApplicationDocumentsDirectory();
+      final file = File(join(dbDirectory.path, databaseFileName));
+      return NativeDatabase(file);
+    });
+  }
+
+  AppDatabase(QueryExecutor queryExecutor) : super(queryExecutor);
 
   @override
   int get schemaVersion => 1;
-}
-
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbDirectory = await getApplicationDocumentsDirectory();
-    final file = File(join(dbDirectory.path, 'db.sqlite'));
-    return NativeDatabase(file);
-  });
 }
