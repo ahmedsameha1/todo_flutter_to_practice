@@ -28,33 +28,37 @@ mixin _$AuthState {
 /// @nodoc
 abstract class $AuthStateCopyWith<$Res> {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) then) =
-      _$AuthStateCopyWithImpl<$Res>;
+      _$AuthStateCopyWithImpl<$Res, AuthState>;
+  @useResult
   $Res call({ApplicationLoginState applicationLoginState, String? email});
 }
 
 /// @nodoc
-class _$AuthStateCopyWithImpl<$Res> implements $AuthStateCopyWith<$Res> {
+class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
+    implements $AuthStateCopyWith<$Res> {
   _$AuthStateCopyWithImpl(this._value, this._then);
 
-  final AuthState _value;
   // ignore: unused_field
-  final $Res Function(AuthState) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? applicationLoginState = freezed,
+    Object? applicationLoginState = null,
     Object? email = freezed,
   }) {
     return _then(_value.copyWith(
-      applicationLoginState: applicationLoginState == freezed
+      applicationLoginState: null == applicationLoginState
           ? _value.applicationLoginState
           : applicationLoginState // ignore: cast_nullable_to_non_nullable
               as ApplicationLoginState,
-      email: email == freezed
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String?,
-    ));
+    ) as $Val);
   }
 }
 
@@ -64,30 +68,30 @@ abstract class _$$_AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
           _$_AuthState value, $Res Function(_$_AuthState) then) =
       __$$_AuthStateCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({ApplicationLoginState applicationLoginState, String? email});
 }
 
 /// @nodoc
-class __$$_AuthStateCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res>
+class __$$_AuthStateCopyWithImpl<$Res>
+    extends _$AuthStateCopyWithImpl<$Res, _$_AuthState>
     implements _$$_AuthStateCopyWith<$Res> {
   __$$_AuthStateCopyWithImpl(
       _$_AuthState _value, $Res Function(_$_AuthState) _then)
-      : super(_value, (v) => _then(v as _$_AuthState));
+      : super(_value, _then);
 
-  @override
-  _$_AuthState get _value => super._value as _$_AuthState;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? applicationLoginState = freezed,
+    Object? applicationLoginState = null,
     Object? email = freezed,
   }) {
     return _then(_$_AuthState(
-      applicationLoginState: applicationLoginState == freezed
+      applicationLoginState: null == applicationLoginState
           ? _value.applicationLoginState
           : applicationLoginState // ignore: cast_nullable_to_non_nullable
               as ApplicationLoginState,
-      email: email == freezed
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String?,
@@ -124,19 +128,17 @@ class _$_AuthState with DiagnosticableTreeMixin implements _AuthState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_AuthState &&
-            const DeepCollectionEquality()
-                .equals(other.applicationLoginState, applicationLoginState) &&
-            const DeepCollectionEquality().equals(other.email, email));
+            (identical(other.applicationLoginState, applicationLoginState) ||
+                other.applicationLoginState == applicationLoginState) &&
+            (identical(other.email, email) || other.email == email));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(applicationLoginState),
-      const DeepCollectionEquality().hash(email));
+  int get hashCode => Object.hash(runtimeType, applicationLoginState, email);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_AuthStateCopyWith<_$_AuthState> get copyWith =>
       __$$_AuthStateCopyWithImpl<_$_AuthState>(this, _$identity);
 }
