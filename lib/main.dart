@@ -1,15 +1,22 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_flutter_to_practice/app_runner.dart';
+import 'package:todo_flutter_to_practice/firebase_options.dart';
 
 void main() async {
+  
   await (AppRunner(
           const MyApp(),
           runApp,
           WidgetsFlutterBinding.ensureInitialized,
           Firebase.initializeApp,
-          const FirebaseOptions(
-              apiKey: '', appId: '', messagingSenderId: '', projectId: ''))
+          (!kIsWeb && (Platform.isLinux || Platform.isWindows))
+              ? const FirebaseOptions(
+                  apiKey: '', appId: '', messagingSenderId: '', projectId: '')
+              : DefaultFirebaseOptions.currentPlatform)
       .run());
 }
 
