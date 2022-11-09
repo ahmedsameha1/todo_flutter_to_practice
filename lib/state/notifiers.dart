@@ -12,5 +12,7 @@ final todosProvider = StateNotifierProvider<TodosNotifier, List<Todo>>((ref) {
 
 final authStateProvider =
     StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
-  return AuthStateNotifier(FirebaseAuth.instance);
+  return ref.read(authStateNotifierProvider);
 });
+
+final authStateNotifierProvider = Provider<AuthStateNotifier>((ref) => AuthStateNotifier(FirebaseAuth.instance));

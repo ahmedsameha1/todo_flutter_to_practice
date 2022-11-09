@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final scaffoldFinder = find.byType(Scaffold);
 final formFinder = find.byType(Form);
 final columnFinder = find.byType(Column);
 final textFormFieldFinder = find.byType(TextFormField);
