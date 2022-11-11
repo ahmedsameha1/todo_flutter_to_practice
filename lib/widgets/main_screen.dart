@@ -7,6 +7,7 @@ import 'package:todo_flutter_to_practice/domain_model/value_classes/application_
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
 import 'email.dart';
+import 'password.dart';
 
 class MainScreen extends ConsumerWidget {
   static const String signInUpString = "Sign in/up";
@@ -26,6 +27,12 @@ class MainScreen extends ConsumerWidget {
       case ApplicationLoginState.emailAddress:
         body =
             Email(authStateNotifier.verifyEmail, authStateNotifier.toLoggedOut);
+        break;
+      case ApplicationLoginState.password:
+        body = Password(
+            authState.email!,
+            authStateNotifier.signInWithEmailAndPassword,
+            authStateNotifier.toLoggedOut);
         break;
       default:
         body = Text("");
