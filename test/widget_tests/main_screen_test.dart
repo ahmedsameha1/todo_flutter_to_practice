@@ -10,6 +10,7 @@ import 'package:todo_flutter_to_practice/domain_model/auth_state.dart';
 import 'package:todo_flutter_to_practice/domain_model/value_classes/application_login_state.dart';
 import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/email.dart';
+import 'package:todo_flutter_to_practice/widgets/locked.dart';
 import 'package:todo_flutter_to_practice/widgets/password.dart';
 import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:todo_flutter_to_practice/widgets/main_screen.dart';
@@ -96,5 +97,26 @@ void main() {
     Register registerWidget = tester.widget(registerFinder);
     expect(registerWidget.nextAction, authStateNotifier.registerAccount);
     expect(registerWidget.cancelAction, authStateNotifier.toLoggedOut);
+  });
+
+  testWidgets("locked state case", (WidgetTester tester) async {
+    authStateNotifier = AuthStateNotifier(
+        firebaseAuth,
+        AuthState(
+            applicationLoginState: ApplicationLoginState.locked,
+            email: "test@test.com"));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      authStateNotifierProvider.overrideWithValue(authStateNotifier)
+    ], child: MaterialApp(home: MainScreen())));
+    Scaffold scaffold = tester.widget(scaffoldFinder);
+    expect(scaffold.body.runtimeType, Locked);
+    final lockedFinder = find.byType(Locked);
+    expect(find.descendant(of: scaffoldFinder, matching: lockedFinder),
+        findsOneWidget);
+    Locked lockedWidget = tester.widget(lockedFinder);
+    expect(lockedWidget.refreshAction, authStateNotifier.updateUser);
+    expect(lockedWidget.sendVerificationEmailAction,
+        authStateNotifier.sendEmailToVerifyEmailAddress);
+    expect(lockedWidget.logoutAction, authStateNotifier.signOut);
   });
 }

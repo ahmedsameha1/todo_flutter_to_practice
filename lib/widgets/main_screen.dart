@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_flutter_to_practice/domain_model/value_classes/application_login_state.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
+import 'package:todo_flutter_to_practice/widgets/locked.dart';
 
 import 'email.dart';
 import 'password.dart';
@@ -35,6 +36,12 @@ class MainScreen extends ConsumerWidget {
       case ApplicationLoginState.register:
         body = Register(authState.email!, authStateNotifier.registerAccount,
             authStateNotifier.toLoggedOut);
+        break;
+      case ApplicationLoginState.locked:
+        body = Locked(
+            authStateNotifier.updateUser,
+            authStateNotifier.sendEmailToVerifyEmailAddress,
+            authStateNotifier.signOut);
         break;
       default:
         body = Text("");
