@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_flutter_to_practice/domain_model/value_classes/application_login_state.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
 import 'email.dart';
 import 'password.dart';
+import 'register.dart';
 
 class MainScreen extends ConsumerWidget {
   static const String signInUpString = "Sign in/up";
@@ -32,6 +30,10 @@ class MainScreen extends ConsumerWidget {
         body = Password(
             authState.email!,
             authStateNotifier.signInWithEmailAndPassword,
+            authStateNotifier.toLoggedOut);
+        break;
+      case ApplicationLoginState.register:
+        body = Register(authState.email!, authStateNotifier.registerAccount,
             authStateNotifier.toLoggedOut);
         break;
       default:

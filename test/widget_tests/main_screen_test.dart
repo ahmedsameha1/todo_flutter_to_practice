@@ -11,6 +11,7 @@ import 'package:todo_flutter_to_practice/domain_model/value_classes/application_
 import 'package:todo_flutter_to_practice/state/auth_state_notifier.dart';
 import 'package:todo_flutter_to_practice/widgets/email.dart';
 import 'package:todo_flutter_to_practice/widgets/password.dart';
+import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:todo_flutter_to_practice/widgets/main_screen.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
 
@@ -76,5 +77,24 @@ void main() {
     expect(passwordWidget.nextAction,
         authStateNotifier.signInWithEmailAndPassword);
     expect(passwordWidget.cancelAction, authStateNotifier.toLoggedOut);
+  });
+
+  testWidgets("register state case", (WidgetTester tester) async {
+    authStateNotifier = AuthStateNotifier(
+        firebaseAuth,
+        AuthState(
+            applicationLoginState: ApplicationLoginState.register,
+            email: "test@test.com"));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      authStateNotifierProvider.overrideWithValue(authStateNotifier)
+    ], child: MaterialApp(home: MainScreen())));
+    Scaffold scaffold = tester.widget(scaffoldFinder);
+    expect(scaffold.body.runtimeType, Register);
+    final registerFinder = find.byType(Register);
+    expect(find.descendant(of: scaffoldFinder, matching: registerFinder),
+        findsOneWidget);
+    Register registerWidget = tester.widget(registerFinder);
+    expect(registerWidget.nextAction, authStateNotifier.registerAccount);
+    expect(registerWidget.cancelAction, authStateNotifier.toLoggedOut);
   });
 }
