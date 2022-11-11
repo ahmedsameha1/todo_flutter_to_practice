@@ -15,6 +15,7 @@ import 'package:todo_flutter_to_practice/widgets/password.dart';
 import 'package:todo_flutter_to_practice/widgets/register.dart';
 import 'package:todo_flutter_to_practice/widgets/main_screen.dart';
 import 'package:todo_flutter_to_practice/state/notifiers.dart';
+import 'package:todo_flutter_to_practice/widgets/todo_list.dart';
 
 import '../state/auth_state_notifier_test.mocks.dart';
 import 'common_finders.dart';
@@ -30,11 +31,13 @@ void main() {
     when(firebaseAuth.userChanges()).thenAnswer((_) => streamController.stream);
   });
   testWidgets("loggedOut state case", (WidgetTester tester) async {
-    authStateNotifier = AuthStateNotifier(firebaseAuth,
-        AuthState(applicationLoginState: ApplicationLoginState.loggedOut));
+    authStateNotifier = AuthStateNotifier(
+        firebaseAuth,
+        const AuthState(
+            applicationLoginState: ApplicationLoginState.loggedOut));
     await tester.pumpWidget(ProviderScope(overrides: [
       authStateNotifierProvider.overrideWithValue(authStateNotifier)
-    ], child: MaterialApp(home: MainScreen())));
+    ], child: const MaterialApp(home: MainScreen())));
     Scaffold scaffold = tester.widget(scaffoldFinder);
     expect(scaffold.body.runtimeType, TextButton);
     expect(find.descendant(of: scaffoldFinder, matching: textButtonFinder),
@@ -45,11 +48,13 @@ void main() {
   });
 
   testWidgets("emailAddress state case", (WidgetTester tester) async {
-    authStateNotifier = AuthStateNotifier(firebaseAuth,
-        AuthState(applicationLoginState: ApplicationLoginState.emailAddress));
+    authStateNotifier = AuthStateNotifier(
+        firebaseAuth,
+        const AuthState(
+            applicationLoginState: ApplicationLoginState.emailAddress));
     await tester.pumpWidget(ProviderScope(overrides: [
       authStateNotifierProvider.overrideWithValue(authStateNotifier)
-    ], child: MaterialApp(home: MainScreen())));
+    ], child: const MaterialApp(home: MainScreen())));
     Scaffold scaffold = tester.widget(scaffoldFinder);
     expect(scaffold.body.runtimeType, Email);
     final emailFinder = find.byType(Email);
@@ -63,12 +68,12 @@ void main() {
   testWidgets("password state case", (WidgetTester tester) async {
     authStateNotifier = AuthStateNotifier(
         firebaseAuth,
-        AuthState(
+        const AuthState(
             applicationLoginState: ApplicationLoginState.password,
             email: "test@test.com"));
     await tester.pumpWidget(ProviderScope(overrides: [
       authStateNotifierProvider.overrideWithValue(authStateNotifier)
-    ], child: MaterialApp(home: MainScreen())));
+    ], child: const MaterialApp(home: MainScreen())));
     Scaffold scaffold = tester.widget(scaffoldFinder);
     expect(scaffold.body.runtimeType, Password);
     final passwordFinder = find.byType(Password);
@@ -83,12 +88,12 @@ void main() {
   testWidgets("register state case", (WidgetTester tester) async {
     authStateNotifier = AuthStateNotifier(
         firebaseAuth,
-        AuthState(
+        const AuthState(
             applicationLoginState: ApplicationLoginState.register,
             email: "test@test.com"));
     await tester.pumpWidget(ProviderScope(overrides: [
       authStateNotifierProvider.overrideWithValue(authStateNotifier)
-    ], child: MaterialApp(home: MainScreen())));
+    ], child: const MaterialApp(home: MainScreen())));
     Scaffold scaffold = tester.widget(scaffoldFinder);
     expect(scaffold.body.runtimeType, Register);
     final registerFinder = find.byType(Register);
@@ -102,12 +107,12 @@ void main() {
   testWidgets("locked state case", (WidgetTester tester) async {
     authStateNotifier = AuthStateNotifier(
         firebaseAuth,
-        AuthState(
+        const AuthState(
             applicationLoginState: ApplicationLoginState.locked,
             email: "test@test.com"));
     await tester.pumpWidget(ProviderScope(overrides: [
       authStateNotifierProvider.overrideWithValue(authStateNotifier)
-    ], child: MaterialApp(home: MainScreen())));
+    ], child: const MaterialApp(home: MainScreen())));
     Scaffold scaffold = tester.widget(scaffoldFinder);
     expect(scaffold.body.runtimeType, Locked);
     final lockedFinder = find.byType(Locked);
@@ -118,5 +123,21 @@ void main() {
     expect(lockedWidget.sendVerificationEmailAction,
         authStateNotifier.sendEmailToVerifyEmailAddress);
     expect(lockedWidget.logoutAction, authStateNotifier.signOut);
+  });
+
+  testWidgets("loggedIn state case", (WidgetTester tester) async {
+    authStateNotifier = AuthStateNotifier(
+        firebaseAuth,
+        const AuthState(
+            applicationLoginState: ApplicationLoginState.loggedIn,
+            email: "test@test.com"));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      authStateNotifierProvider.overrideWithValue(authStateNotifier)
+    ], child: const MaterialApp(home: MainScreen())));
+    Scaffold scaffold = tester.widget(scaffoldFinder);
+    expect(scaffold.body.runtimeType, TodoList);
+    final todoListFinder = find.byType(TodoList);
+    expect(find.descendant(of: scaffoldFinder, matching: todoListFinder),
+        findsOneWidget);
   });
 }

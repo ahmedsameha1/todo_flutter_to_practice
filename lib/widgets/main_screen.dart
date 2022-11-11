@@ -7,6 +7,7 @@ import 'package:todo_flutter_to_practice/widgets/locked.dart';
 import 'email.dart';
 import 'password.dart';
 import 'register.dart';
+import 'todo_list.dart';
 
 class MainScreen extends ConsumerWidget {
   static const String signInUpString = "Sign in/up";
@@ -43,8 +44,9 @@ class MainScreen extends ConsumerWidget {
             authStateNotifier.sendEmailToVerifyEmailAddress,
             authStateNotifier.signOut);
         break;
-      default:
-        body = Text("");
+      case ApplicationLoginState.loggedIn:
+        body = const TodoList();
+        break;
     }
     return Scaffold(
       body: body,
