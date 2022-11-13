@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain_model/auth_state.dart';
@@ -94,8 +93,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       userCredential.user!.updateDisplayName(displayName);
-      userCredential.user!.sendEmailVerification();
-      await firebaseAuth.signOut();
+      await userCredential.user!.sendEmailVerification();
     } on FirebaseAuthException catch (exception) {
       errorCallback(exception);
     }
@@ -109,9 +107,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     await firebaseAuth.signOut();
   }
 
-  void sendEmailToVerifyEmailAddress() async {
-    firebaseAuth.currentUser!.sendEmailVerification();
-    await firebaseAuth.signOut();
+  Future<void> sendEmailToVerifyEmailAddress() async {
+    await firebaseAuth.currentUser!.sendEmailVerification();
   }
 
   void toLoggedOut() {

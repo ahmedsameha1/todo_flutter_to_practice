@@ -179,18 +179,16 @@ main() {
 
   test("""
       $given $workingWithAuthStateNotifier
-        $and there is no signed in user
+        $and there is signed in user
       $wheN Calling sendEmailToVerifyEmailAddress()
       $then User.sendEmailVerification() has been called
       """, () async {
     await fromLoggedOutToEmailAddressToPassword();
     await fromPasswordToLocked();
     when(firebaseAuth.currentUser).thenReturn(notNullUser);
-    sut.sendEmailToVerifyEmailAddress();
+    await sut.sendEmailToVerifyEmailAddress();
     verify(notNullUser.sendEmailVerification()).called(1);
-    pushPreparedUserToUserChangesStream(nullUser);
-    verify(await firebaseAuth.signOut()).called(1);
-    expect(sut.state.applicationLoginState, ApplicationLoginState.loggedOut);
+    expect(sut.state.applicationLoginState, ApplicationLoginState.locked);
   });
 
   test("""
@@ -229,7 +227,6 @@ main() {
         validEmail, password, displayName, firebaseAuthExceptionCallback);
     verify(firebaseAuthExceptionCallback(firebaseAuthException)).called(1);
   });
-
   test("""
         $given $workingWithAuthStateNotifier
           $and there is no signed in user
@@ -238,12 +235,9 @@ main() {
         $then firebaseAuth.createUserWithEmailAndPassword() should be called once
           $and User.updateDisplayName() has been called
           $and User.sendEmailVerification() has been called
-          $and firebaseAuth.signOut() has been called
-          $and Calling state.applicationLoginState should return ApplicationLoginState.loggedOut
+          $and Calling state.applicationLoginState should return ApplicationLoginState.locked
 """, () async {
     await fromLoggedOutToEmailAddressToRegister();
-    when(notNullUser.updateDisplayName(displayName))
-        .thenAnswer((realInvocation) => Completer<void>().future);
     when(userCredential.user).thenReturn(notNullUser);
     when(firebaseAuth.createUserWithEmailAndPassword(
             email: validEmail, password: password))
@@ -256,9 +250,7 @@ main() {
         .called(1);
     verify(notNullUser.updateDisplayName(displayName)).called(1);
     verify(notNullUser.sendEmailVerification()).called(1);
-    pushPreparedUserToUserChangesStream(nullUser);
-    verify(await firebaseAuth.signOut()).called(1);
-    expect(sut.state.applicationLoginState, ApplicationLoginState.loggedOut);
+    expect(sut.state.applicationLoginState, ApplicationLoginState.locked);
   });
 
   test("""
