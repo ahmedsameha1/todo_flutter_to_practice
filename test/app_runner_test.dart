@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -34,7 +35,7 @@ main() {
         $then EnsureInitialized, intializeApp and runApp should be called
 """, () async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    Widget widget = const Text("text");
+    Widget widget = const ProviderScope(child: Text("text"));
     final runAppCall = MockRunAppFunction();
     final ensureInitializedCall = MockEnsureInitializedFunction();
     final initializeAppCall = MockFirebaseInitializeAppFunction();
@@ -49,5 +50,21 @@ main() {
     verify(ensureInitializedCall());
     verify(initializeAppCall(options: firebaseOptions));
     verify(runAppCall(widget));
+  });
+  test("widget isn't a ProviderScope", () {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    Widget widget = const Text("text");
+    final runAppCall = MockRunAppFunction();
+    final ensureInitializedCall = MockEnsureInitializedFunction();
+    final initializeAppCall = MockFirebaseInitializeAppFunction();
+    final firebaseOptions = MockFirebaseOptions();
+    final FirebaseApp firebaseApp = MockFirebaseApp();
+    when(ensureInitializedCall()).thenReturn(WidgetsBinding.instance);
+    when(initializeAppCall(options: firebaseOptions))
+        .thenAnswer((realInvocation) async => firebaseApp);
+    expect(() {
+      AppRunner(widget, runAppCall, ensureInitializedCall,
+          initializeAppCall, firebaseOptions);
+    }, throwsA(predicate((e) => e is ArgumentError)));
   });
 }
